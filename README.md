@@ -21,10 +21,12 @@ A nossa plataforma tem como missão capacitar profissionais que atuam na gestão
 - HTML
 - Typescript
 - Miui
+- CSS
 ### Modelagem
-- Figma
+- Figma - Link: https://www.figma.com/files/team/1209587063742222390/project/292249474/PlaTina?fuid=1209587056302502446 
 ### Back-end
 - Python
-- FLask
+- Flask
 ### Banco de dados
 - MySql
+- Flask sql-alchemy

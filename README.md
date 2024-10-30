@@ -28,5 +28,5 @@ A nossa plataforma tem como missão capacitar profissionais que atuam na gestão
 - Python
 - Django
 ### Banco de dados
-- MySql
-- Flask sql-alchemy
+- MySql (SQLite3)
+- Sql-alchemy

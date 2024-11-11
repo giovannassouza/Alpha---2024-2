@@ -20,7 +20,7 @@ A nossa plataforma tem como missão capacitar profissionais que atuam na gestão
 ### Front-End
 - HTML
 - Typescript
-- Miui
+- MUI
 - CSS
 ### Modelagem
 - Figma - Link: https://www.figma.com/files/team/1209587063742222390/project/292249474/PlaTina?fuid=1209587056302502446 

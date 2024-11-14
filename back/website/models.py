@@ -55,6 +55,7 @@ class AcervoDeQuestoes(db.Model):
 
 class Questao(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    enunciado = db.Column(db.String(3600))
     alternativa_A = db.Column(db.String(3600))
     alternativa_B = db.Column(db.String(3600))
     alternativa_C = db.Column(db.String(3600))

@@ -9,6 +9,7 @@ class User(db.Model, UserMixin):
     cpf = db.Column(db.String(11), unique=True)
     password = db.Column(db.String(150))
     full_name = db.Column(db.String(150))
+    fim_assinatura = db.Column(db.DateTime(timezon=True))
     data_nasc = db.Column(db.DateTime(timezone=True))
     data_criacao = db.Column(db.DateTime(timezone=True))
 

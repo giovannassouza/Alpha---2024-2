@@ -1,3 +1,3 @@
 venv-tina
 back\website\__pycache__
-back\website\api_key.py
+back/website/api_key.py

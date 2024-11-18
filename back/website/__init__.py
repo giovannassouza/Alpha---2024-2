@@ -2,27 +2,38 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from authlib.integrations.flask_client import OAuth
+from .api_key import APP_SECRET, DB_NAME, CLIENT_SECRET, CLIENT_ID
 # from flask_login import LoginManager 
 
 db = SQLAlchemy()
-DB_NAME = "database.db"
-
 
 def create_app():
+    # Flask app setup
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'OUR-PLATINA' #da pra mudar tbm nao é definitivo e tbm não é tãaao importante assim
+    app.config['SECRET_KEY'] = APP_SECRET # LITERALMENTE QUALQUER COISA ALEATÓRIA
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
-
+    
     from .views import views
     from .auth import auth
     from .payment import payment
     
     # Initialize OAuth
-    oauth = OAuth(app)
-
+    oauth = OAuth(app) # create authentication instance attached to app
+    google = oauth.register(
+        name = 'google',
+        client_id = 'CLIENT_ID',
+        client_secret = 'CLIENT_SECRET',
+        access_token_url = 'https://account.google.com/o/oauth2/token',
+        access_token_params = None,
+        authorize_url = 'https://accounts.google.com/o/oauth2/auth',
+        authorize_params = None,
+        api_base_url = 'https://www.googleapis.com/oauth2/v1/',
+        client_kwargs = {'scope': 'openid profile email'}
+    )
+    
     # Initialize the database with the app
     db.init_app(app)
-
+    
     # Imports classes from models
     from .models import User, CursosEmProgresso, Curso, Questionario, Questao, Ementa, Aula, VideoAula, AcervoDeQuestoes, RespostaAoQuestionario
     

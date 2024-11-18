@@ -1,6 +1,7 @@
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class User(db.Model, UserMixin):
@@ -11,6 +12,12 @@ class User(db.Model, UserMixin):
     full_name = db.Column(db.String(150))
     data_nasc = db.Column(db.DateTime(timezone=True))
     data_criacao = db.Column(db.DateTime(timezone=True))
+    
+    def set_password(self, password: str):
+        self.password = generate_password_hash(password)
+    
+    def check_password(self, password_to_check):
+        return check_password_hash(self.password, password_to_check)
 
 class CursosEmProgresso(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)

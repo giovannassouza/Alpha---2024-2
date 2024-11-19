@@ -7,6 +7,18 @@ from .api_key import APP_SECRET, DB_NAME, CLIENT_SECRET, CLIENT_ID
 
 db = SQLAlchemy()
 oauth = OAuth()
+google = oauth.register(
+    name = 'google',
+    client_id = 'CLIENT_ID',
+    client_secret = 'CLIENT_SECRET',
+    server_metadata_uri='http://metadata.google.internal/computeMetadata/v1',
+    access_token_url = 'https://account.google.com/o/oauth2/token',
+    access_token_params = None,
+    authorize_url = 'https://accounts.google.com/o/oauth2/auth',
+    authorize_params = None,
+    api_base_url = 'https://www.googleapis.com/oauth2/v1/',
+    client_kwargs = {'scope': 'openid profile email'}
+)
 
 def create_app():
     # Flask app setup
@@ -20,18 +32,7 @@ def create_app():
     
     # Initialize OAuth
     oauth.init_app(app) # create authentication instance attached to app
-    google = oauth.register(
-        name = 'google',
-        client_id = 'CLIENT_ID',
-        client_secret = 'CLIENT_SECRET',
-        server_metadata_uri='http://metadata.google.internal/computeMetadata/v1',
-        access_token_url = 'https://account.google.com/o/oauth2/token',
-        access_token_params = None,
-        authorize_url = 'https://accounts.google.com/o/oauth2/auth',
-        authorize_params = None,
-        api_base_url = 'https://www.googleapis.com/oauth2/v1/',
-        client_kwargs = {'scope': 'openid profile email'}
-    )
+    
     
     # Initialize the database with the app
     db.init_app(app)

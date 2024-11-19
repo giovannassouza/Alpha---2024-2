@@ -6,6 +6,7 @@ from .api_key import APP_SECRET, DB_NAME, CLIENT_SECRET, CLIENT_ID
 # from flask_login import LoginManager 
 
 db = SQLAlchemy()
+oauth = OAuth()
 
 def create_app():
     # Flask app setup
@@ -18,11 +19,12 @@ def create_app():
     from .payment import payment
     
     # Initialize OAuth
-    oauth = OAuth(app) # create authentication instance attached to app
+    oauth.init_app(app) # create authentication instance attached to app
     google = oauth.register(
         name = 'google',
         client_id = 'CLIENT_ID',
         client_secret = 'CLIENT_SECRET',
+        server_metadata_uri='http://metadata.google.internal/computeMetadata/v1',
         access_token_url = 'https://account.google.com/o/oauth2/token',
         access_token_params = None,
         authorize_url = 'https://accounts.google.com/o/oauth2/auth',

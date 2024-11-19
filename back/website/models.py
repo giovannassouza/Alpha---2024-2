@@ -2,16 +2,17 @@ from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), unique=True)
-    cpf = db.Column(db.String(11), unique=True)
-    password = db.Column(db.String(150))
+    cpf = db.Column(db.String(11), nullable=True, unique=True)
+    password = db.Column(db.String(150), nullable=True)
     full_name = db.Column(db.String(150))
-    data_nasc = db.Column(db.DateTime(timezone=True))
-    data_criacao = db.Column(db.DateTime(timezone=True))
+    data_nasc = db.Column(db.DateTime(timezone=True), nullable=True)
+    data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
     
     def set_password(self, password: str):
         self.password = generate_password_hash(password)

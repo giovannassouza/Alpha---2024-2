@@ -13,6 +13,7 @@ class User(db.Model, UserMixin):
     full_name = db.Column(db.String(150))
     data_nasc = db.Column(db.DateTime(timezone=True), nullable=True)
     data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
+    google_linked = db.Column(db.Integer, nullable=False, default=0)
     
     def set_password(self, password: str):
         self.password = generate_password_hash(password)

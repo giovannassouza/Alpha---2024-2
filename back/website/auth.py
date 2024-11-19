@@ -27,27 +27,37 @@ def authorize_google():
         user = create_user(
             email = email,
             full_name = user_info.get('name'),
+            google_linked = True
             )
     
     session['user_email'] = email
     session['oauth_token'] = token.get('access_token')
+    session['user_is_logged_in'] = True
     
     return redirect('/')
 
-def create_user(email: str, full_name: str, cpf: str = None, password: str = None, data_nasc: datetime = None, data_criacao: datetime = datetime.now()):
+def create_user(email: str, full_name: str, cpf: str = None, password: str = None, data_nasc: datetime = None, data_criacao: datetime = datetime.now(), google_linked: bool = False):
     new_user = User(
         email = email,
         cpf = cpf,
         password = password,
         full_name = full_name,
         data_nasc = data_nasc,
-        data_criacao = data_criacao
+        data_criacao = data_criacao,
+        google_linked = 1 if google_linked else 0
     )
     db.session.add(new_user)
     db.session.commit()
     return new_user
 
+def user_is_logged():
+    return True if type(session['user_email']) == str else False
+
 @auth.route('/update-info', methods=['POST'])
 def update_info():
     if request.method == 'POST':
         user_email = session['user_email']
+        if user_is_logged():
+            cpf = request.form.get('cpf')
+            born_date = request.form.get('born_date')
+            

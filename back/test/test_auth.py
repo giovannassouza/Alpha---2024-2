@@ -66,6 +66,10 @@ def test_signup_cpf_exists(client, app):
             'keep_logged_in': True
         }
     )
+    
+    with app.app_context():
+        assert User.query.filter_by(email='test@test.com').first().cpf == '539.529.150-41'
+    
     response = client.post(
         '/sign-up',
         data={

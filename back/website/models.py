@@ -8,7 +8,7 @@ from datetime import datetime
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), unique=True)
-    cpf = db.Column(db.String(11), nullable=True, unique=True)
+    cpf = db.Column(db.String(15), nullable=True, unique=True)
     password = db.Column(db.String(150), nullable=True)
     full_name = db.Column(db.String(200))
     data_nasc = db.Column(db.DateTime(timezone=True), nullable=True)

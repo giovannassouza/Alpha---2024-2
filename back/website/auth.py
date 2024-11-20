@@ -61,7 +61,7 @@ def sign_up():
             flash('Invalid birth date. Check your credentials.', category='error')
             #redirect(url_for('views.sign_up'))
             return 'Error. Invalid birth date.'
-        if not validate_cpf(cpf=cpf):
+        if not validate_cpf(cpf):
             flash('Invalid CPF.', category='error')
             #redirect(url_for('views.sign_up'))
             return 'Error. Invalid CPF.'
@@ -107,7 +107,7 @@ def create_user(
     
     new_user = User(
         email = email,
-        cpf = None,
+        cpf = cpf,
         password = None,
         full_name = full_name,
         data_nasc = data_nasc,

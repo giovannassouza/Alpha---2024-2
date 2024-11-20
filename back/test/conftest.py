@@ -13,4 +13,7 @@ def app():
 
 @pytest.fixture()
 def client(app):
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
     return app.test_client()

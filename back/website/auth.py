@@ -1,6 +1,6 @@
 from flask import Blueprint, url_for, redirect, session, request, flash
 from flask_login import login_user, login_required, logout_user, current_user
-from models import User
+from .models import User
 from . import oauth, db, google
 from website.models import *
 from datetime import datetime

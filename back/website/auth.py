@@ -1,9 +1,73 @@
 from flask import Blueprint, url_for, redirect, session, request, flash
+from flask_login import login_user, login_required, logout_user, current_user
+from models import User
 from . import oauth, db, google
 from website.models import *
 from datetime import datetime
 
 auth = Blueprint('auth', __name__)
+
+@auth.route('/login/authenticate', methods=['POST'])
+def login():
+    if request.method == 'POST':
+        user_email = request.form.get('email')
+        user_password = request.form.get('password')
+        keep_logged_in = request.form.get('keep_logged_in')
+        
+        user = User.query.filter_by(email=user_email).first()
+        
+        if user.check_password(user_password):
+            login_user(user, remember=keep_logged_in)
+            if current_user.is_authenticated:
+                flash('Logged in successfully.', category='success')
+            else:
+                flash('Error logging in.', category='error')
+        else:
+            flash('Incorrect information. Verify your credentials and try again.', category='error')
+
+@auth.route('/sign-up', methods=['POST'])
+def sign_up():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        check_password = request.form.get('password_check')
+        full_name = request.form.get('full_name')
+        birth_date = request.form.get('birth_date')
+        cpf = request.form.get('cpf')
+        keep_logged_in = request.form.get('keep_logged_in')
+        
+        if User.query.filter_by(email=email).count() >= 1:
+            flash('Email already registered in our database.', category='error')
+            return redirect(url_for('views.login'))
+        if '@' not in email:
+            flash('Invalid email. Check your credentials.', category='error')
+            return redirect(url_for('views.sign_up'))
+        if password != check_password:
+            flash('Passwords do not match.', category='error')
+            return redirect(url_for('views.sign_up'))
+        if birth_date > datetime.now():
+            flash('Invalid birth date. Check your credentials.', category='error')
+            return redirect(url_for('views.sign_up'))
+        
+        response = create_user(
+            email = email,
+            full_name = full_name,
+            cpf = cpf,
+            password = password,
+            data_nasc = datetime.strptime(birth_date, '%Y-%m-%d')
+        )
+        
+        if 'Error' in response:
+            flash('Error signing up.', category='error')
+            return redirect(url_for('views.sign_up'))
+        else:        
+            login_user(User.query.filter_by('email').first(), remember=keep_logged_in)
+            if current_user.is_authenticated:
+                flash('Signed up successfully.', category='success')
+                return redirect(url_for('views.home'))
+            else:
+                flash('Error logging in. Try again.', category='error')
+                return redirect(url_for('views.login'))
 
 @auth.route('/login/google') # Login for google
 def login_google():
@@ -12,7 +76,7 @@ def login_google():
         return google.authorize_redirect(redirect_uri)
     except Exception as e:
         #app.logger.error()
-        return 'An error occured during login', 500
+        return 'An error occured while logging in.', 500
 
 @auth.route('/authorize/google')
 def authorize_google():
@@ -24,31 +88,39 @@ def authorize_google():
     
     user = User.query.filter_by(email=email)
     if not user:
-        user = create_user(
+        response = create_user(
             email = email,
             full_name = user_info.get('name'),
             google_linked = True
             )
     
-    session['user_email'] = email
-    session['oauth_token'] = token.get('access_token')
-    session['user_is_logged_in'] = True
+    if 'Error' not in response:
+        session['user_email'] = email
+        session['oauth_token'] = token.get('access_token')
+        session['user_is_logged_in'] = True
     
     return redirect('/')
 
 def create_user(email: str, full_name: str, cpf: str = None, password: str = None, data_nasc: datetime = None, data_criacao: datetime = datetime.now(), google_linked: bool = False):
+    if cpf != None:
+        if not validate_cpf(cpf):
+            flash('Invalid CPF. Try again.', category= 'error')
+            return 'Error. Invalid CPF'
+    
     new_user = User(
         email = email,
         cpf = cpf,
-        password = password,
+        password = password if password == None else User.set_password(password),
         full_name = full_name,
         data_nasc = data_nasc,
         data_criacao = data_criacao,
-        google_linked = 1 if google_linked else 0
+        google_linked = google_linked
     )
+    
     db.session.add(new_user)
     db.session.commit()
-    return new_user
+    
+    return 'Success. User created.'
 
 def user_is_logged():
     return True if type(session['user_email']) == str else False

@@ -10,9 +10,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True)
     cpf = db.Column(db.String(11), nullable=True, unique=True)
     password = db.Column(db.String(150), nullable=True)
-    full_name = db.Column(db.String(150))
+    full_name = db.Column(db.String(200))
     data_nasc = db.Column(db.DateTime(timezone=True), nullable=True)
     data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
+    cliente_tina = db.Column(db.Integer, nullable=False)
     google_linked = db.Column(db.Integer, nullable=False, default=0)
     
     def set_password(self, password: str):

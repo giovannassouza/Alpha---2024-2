@@ -13,7 +13,7 @@ def payment_checkout():
     link_eterno = create_payment_eternal()
     return render_template("payment.html", link_anual=link_anual, link_mensal=link_mensal, link_eterno=link_eterno)
 
-
+ 
 @payment.route('/payment_done')
 def payment_done():
     return "<h1>Compra concluída!</h1>"

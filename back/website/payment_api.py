@@ -1,9 +1,14 @@
 
 import mercadopago
+#   Existe um problema no back_urls, por estar em localhost o retorno dá um erro,
+#   isso é previsto no site mas deve arrumar quando fizermos o deploy
+
+# CREDENCIAIS DE TESTE, NÃO TENTE REFAZER
+key = "APP_USR-399152317369467-111409-e7711ec50d89b14605bc6f64ee5164e1-2095118211"
 
 def create_payment_anual():
     # Credenciais de teste
-    sdk = mercadopago.SDK("APP_USR-399152317369467-111409-e7711ec50d89b14605bc6f64ee5164e1-2095118211")
+    sdk = mercadopago.SDK(key)
 
     request = {
         "items": [
@@ -34,7 +39,7 @@ def create_payment_anual():
 
 def create_payment_monthly():
     # Credenciais de teste
-    sdk = mercadopago.SDK("APP_USR-399152317369467-111409-e7711ec50d89b14605bc6f64ee5164e1-2095118211")
+    sdk = mercadopago.SDK(key)
 
     request = {
         "items": [
@@ -63,7 +68,7 @@ def create_payment_monthly():
 
 def create_payment_eternal():
     # Credenciais de teste
-    sdk = mercadopago.SDK("APP_USR-399152317369467-111409-e7711ec50d89b14605bc6f64ee5164e1-2095118211")
+    sdk = mercadopago.SDK(key)
 
     request = {
         "items": [

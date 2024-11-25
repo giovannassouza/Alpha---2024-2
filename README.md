@@ -28,7 +28,7 @@ A nossa plataforma tem como missão capacitar profissionais que atuam na gestão
 
 - HTML
 - Typescript
-- Miui
+- MUI
 - CSS
 
 ### Modelagem

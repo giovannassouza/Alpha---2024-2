@@ -28,6 +28,11 @@ class Curso(db.Model):
 
 class Questionario(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    q1 = db.Column(db.Integer, db.ForeignKey("questao.id"))
+    q2 = db.Column(db.Integer, db.ForeignKey("questao.id"))
+    q3 = db.Column(db.Integer, db.ForeignKey("questao.id"))
+    q4 = db.Column(db.Integer, db.ForeignKey("questao.id"))
+    q5 = db.Column(db.Integer, db.ForeignKey("questao.id"))
     pontos_min = db.Column(db.Integer)
     pontos_max = db.Column(db.Integer)
     minutos_max = db.Column(db.Integer)

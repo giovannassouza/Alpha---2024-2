@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Criador de questões</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <form align="center" method="POST">
+      <h3 align="center">New Question</h3>
+      <div class="form-group">
+        <label for="enunciado">Enunciado</label>
+        <textarea
+          rows="4"
+          cols="50"
+          type="text"
+          class="form-control"
+          id="enunciado"
+          name="enunciado"
+          placeholder="Escreva aqui..."
+        ></textarea>
+        <br />
+        <label for="alternativa_A">alternativa A</label>
+        <input
+          type="text"
+          class="form-control"
+          id="alternativa_A"
+          name="alternativa_A"
+          placeholder="Escreva aqui..."
+        />
+        <br />
+        <label for="alternativa_B">alternativa B</label>
+        <input
+          type="text"
+          class="form-control"
+          id="alternativa_B"
+          name="alternativa_B"
+          placeholder="Escreva aqui..."
+        />
+        <br />
+        <label for="alternativa_C">alternativa C</label>
+        <input
+          type="text"
+          class="form-control"
+          id="alternativa_C"
+          name="alternativa_C"
+          placeholder="Escreva aqui..."
+        />
+        <br />
+        <label for="alternativa_D">alternativa D</label>
+        <input
+          type="text"
+          class="form-control"
+          id="alternativa_D"
+          name="alternativa_D"
+          placeholder="Escreva aqui..."
+        />
+        <br />
+        <label for="alternativa_E">alternativa E</label>
+        <input
+          type="text"
+          class="form-control"
+          id="alternativa_E"
+          name="alternativa_E"
+          placeholder="Escreva aqui..."
+        />
+        <br />
+        <label for="resposta_correta">Resposta Correta</label>
+        <input
+        type="text"
+        class="form-control"
+        id="resposta_correta"
+        name="resposta_correta"
+        placeholder="Escreva aqui..."
+      />
+      </div>
+      <br />
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </body>
+</html>

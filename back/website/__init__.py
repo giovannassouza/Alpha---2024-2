@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from authlib.integrations.flask_client import OAuth
 from .api_key import APP_SECRET, DB_NAME, CLIENT_SECRET, CLIENT_ID
-# from flask_login import LoginManager 
+from flask_login import LoginManager 
 
 db = SQLAlchemy()
 oauth = OAuth()
@@ -33,7 +33,9 @@ def create_app():
     # Initialize OAuth
     oauth.init_app(app) # create authentication instance attached to app
     
-    
+    # Initialize OAuth
+    oauth = OAuth(app)
+
     # Initialize the database with the app
     db.init_app(app)
     

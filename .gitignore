@@ -10,3 +10,4 @@ back/website/__pycache__/
 *.pyc
 back/website/api_key.py
 /back/instance
+/back/website/__pycache__

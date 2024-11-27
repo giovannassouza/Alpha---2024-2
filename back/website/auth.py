@@ -7,6 +7,11 @@ from datetime import datetime
 
 auth = Blueprint('auth', __name__)
 
+@auth.route('/checked-in')
+@login_required
+def checked_in():
+    return True if current_user.is_authenticated else False
+
 @auth.route('/login/authenticate', methods=['POST'])
 def login():
     if request.method == 'POST':
@@ -89,6 +94,12 @@ def sign_up():
             #redirect(url_for('views.login'))
             return 'Error. Signed up, but error logging in.'
     return render_template('sign-up.html')
+
+@auth.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
 
 def create_user(
     email: str,

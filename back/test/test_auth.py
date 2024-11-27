@@ -1,5 +1,5 @@
 from website.models import User
-from website.auth import validate_cpf
+from website.auth import validate_cpf, checked_in
 from datetime import datetime
 
 def test_signup(client, app):
@@ -157,6 +157,72 @@ def test_signup_invalid_birth_date(client, app):
     
     with app.app_context():
         assert User.query.count() == 0
+
+def test_email_login(client, app):
+    client.post(
+        '/sign-up',
+        data={
+            'email': 'test1@test.com',
+            'password': 'test1234',
+            'password_check': 'test1234',
+            'full_name': 'Tester',
+            'birth_date': datetime.strftime(datetime.now(), '%Y-%m-%d'),
+            'cpf': '111.111.111-11', # Aleatório
+            'keep_logged_in': True
+        }
+    )
+    
+    client.post(
+        '/login',
+        data = {
+            'id_method': 'test1@test.com',
+            'password': 'test1234',
+            'keep_logged_in': True
+        }
+    )
+    
+    assert checked_in()
+
+def test_email_cpf(client, app):
+    client.post(
+        '/sign-up',
+        data={
+            'email': 'test1@test.com',
+            'password': 'test1234',
+            'password_check': 'test1234',
+            'full_name': 'Tester',
+            'birth_date': datetime.strftime(datetime.now(), '%Y-%m-%d'),
+            'cpf': '111.111.111-11', # Aleatório
+            'keep_logged_in': True
+        }
+    )
+    
+    client.post(
+        '/login',
+        data = {
+            'id_method': '111.111.111-11',
+            'password': 'test1234',
+            'keep_logged_in': True
+        }
+    )
+    
+    assert checked_in()
+
+def test_login_after_signup(client, app):
+    client.post(
+        '/sign-up',
+        data={
+            'email': 'test1@test.com',
+            'password': 'test1234',
+            'password_check': 'test1234',
+            'full_name': 'Tester',
+            'birth_date': datetime.strftime(datetime.now(), '%Y-%m-%d'),
+            'cpf': '111.111.111-11', # Aleatório
+            'keep_logged_in': True
+        }
+    )
+    
+    assert checked_in()
 
 # def test_login(client, app):
 #     client.post(

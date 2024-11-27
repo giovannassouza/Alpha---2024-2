@@ -1,4 +1,6 @@
 venv-tina
-back\website\__pycache__
+back/website/__pycache__
 back/website/api_key.py
 back/test/__pycache__
+*.pyc
+back\website\__pycache__

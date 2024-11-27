@@ -10,5 +10,6 @@ import os
 os.environ['AUTHLIB_INSECURE_TRANSPORT'] = 'true'
 
 
+
 if __name__ == '__main__':
     app.run(debug=True) # runs app

@@ -8,11 +8,12 @@ from datetime import datetime
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(150), unique=True)
-    cpf = db.Column(db.String(11), nullable=True, unique=True)
+    cpf = db.Column(db.String(15), nullable=True, unique=True)
     password = db.Column(db.String(150), nullable=True)
-    full_name = db.Column(db.String(150))
+    full_name = db.Column(db.String(200))
     data_nasc = db.Column(db.DateTime(timezone=True), nullable=True)
     data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
+    cliente_tina = db.Column(db.Integer, nullable=False)
     google_linked = db.Column(db.Integer, nullable=False, default=0)
     
     def set_password(self, password: str):
@@ -37,6 +38,11 @@ class Curso(db.Model):
 
 class Questionario(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    q1 = db.Column(db.Integer, db.ForeignKey("questao.id"))
+    q2 = db.Column(db.Integer, db.ForeignKey("questao.id"))
+    q3 = db.Column(db.Integer, db.ForeignKey("questao.id"))
+    q4 = db.Column(db.Integer, db.ForeignKey("questao.id"))
+    q5 = db.Column(db.Integer, db.ForeignKey("questao.id"))
     pontos_min = db.Column(db.Integer)
     pontos_max = db.Column(db.Integer)
     minutos_max = db.Column(db.Integer)

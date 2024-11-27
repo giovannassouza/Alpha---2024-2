@@ -1,4 +1,3 @@
-
 import mercadopago
 #   Existe um problema no back_urls, por estar em localhost o retorno dá um erro,
 #   isso é previsto no site mas deve arrumar quando fizermos o deploy
@@ -60,39 +59,7 @@ def create_payment_monthly():
         
     }
 
-    preference_response = sdk.preference().create(request)
-    preference = preference_response["response"]
-    payment_link = preference["init_point"]
-    
-    return payment_link
+preference_response = sdk.preference().create(request)
+preference = preference_response["response"]
 
-def create_payment_eternal():
-    # Credenciais de teste
-    sdk = mercadopago.SDK(key)
-
-    request = {
-        "items": [
-            {
-                "id": "3",
-                "title": "Acesso completo PlaTina - VITALÍCIO",
-                "quantity": 1,
-                "currency_id": "BRL",
-                "unit_price": 234.83,
-            },
-        ],
-        "back_urls": {
-            "success": "https://127.0.0.1:5000/payment_done",
-            "failure": "https://127.0.0.1:5000/payment_denied",
-            "pending": "https://127.0.0.1:5000/payment_denied",
-        },
-        "auto_return": "all",
-        
-    }
-
-    preference_response = sdk.preference().create(request)
-    preference = preference_response["response"]
-    payment_link = preference["init_point"]
-    
-    return payment_link
-
-print(create_payment_eternal())
+print(preference)

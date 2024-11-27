@@ -33,9 +33,6 @@ def create_app():
     # Initialize OAuth
     oauth.init_app(app) # create authentication instance attached to app
     
-    # Initialize OAuth
-    oauth = OAuth(app)
-
     # Initialize the database with the app
     db.init_app(app)
     

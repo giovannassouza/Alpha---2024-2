@@ -1,8 +1,12 @@
 venv-tina
-back/website/__pycache__
-back/website/api_key.py
-back/test/__pycache__
+back\website\__pycache__/*
+/back/website/__pycache__/*
+back/test/__pycache__/*
+back/website/__pycache__/*
+back\website\__pycache__/
+/back/website/__pycache__/
+back/test/__pycache__/
+back/website/__pycache__/
 *.pyc
-back\website\__pycache__
+back/website/api_key.py
 /back/instance
-/back/website/__pycache__

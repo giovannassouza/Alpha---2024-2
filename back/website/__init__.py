@@ -3,7 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from authlib.integrations.flask_client import OAuth
 from .api_key import APP_SECRET, DB_NAME, CLIENT_SECRET, CLIENT_ID
-from flask_login import LoginManager 
+from flask_login import LoginManager
+
 
 db = SQLAlchemy()
 oauth = OAuth()
@@ -29,6 +30,7 @@ def create_app():
     from .views import views
     from .auth import auth
     from .payment import payment
+    from .quiz import quiz
     
     # Initialize OAuth
     oauth.init_app(app) # create authentication instance attached to app
@@ -45,6 +47,7 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(payment, url_prefix='/')
+    app.register_blueprint(quiz, url_prefix='/')
 
     return app
 

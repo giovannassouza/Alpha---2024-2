@@ -32,6 +32,7 @@ def create_app():
     from .auth import auth
     from .payment import payment
     from .quiz import quiz
+    from .certificate import certificate
     
     # Initialize OAuth
     oauth.init_app(app) # create authentication instance attached to app
@@ -50,6 +51,7 @@ def create_app():
     app.register_blueprint(payment, url_prefix='/')
 <<<<<<< Updated upstream
     app.register_blueprint(quiz, url_prefix='/')
+    app.register_blueprint(certificate, url_prefix='/')
 
 =======
     

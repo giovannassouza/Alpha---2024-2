@@ -38,14 +38,14 @@ def login():
     
     return(render_template('login.html'))
 
-@auth.route('/sign-up', methods=['POST'])
+@auth.route('/sign-up', methods=['POST', 'GET'])
 def sign_up():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         check_password = request.form.get('password_check')
         full_name = request.form.get('full_name')
-        birth_date = datetime.strptime(request.form.get('birth_date'), '%Y-%m-%d %H:%M:%S')
+        birth_date = datetime.strptime(request.form.get('birth_date'), '%Y-%m-%d')
         cpf = request.form.get('cpf')
         cliente_tina = request.form.get('cliente_tina')
         keep_logged_in = request.form.get('keep_logged_in')

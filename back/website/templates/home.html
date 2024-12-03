@@ -12,7 +12,7 @@
         <nav>
             <ul>
                 <li><a href="home.html">Home</a></li>
-                <li><a href="payment.html">Pagamento</a></li>
+                <li><a href="{{ url_for('payment.payment_checkout') }}">Pagamento</a></li>
             </ul>
         </nav>
     </header>
@@ -20,7 +20,9 @@
         <section>
             <h2>Testando Funcionalidades de Pagamento</h2>
             <p>Esta é a página inicial para testar as opções de pagamento. Navegue até a página de pagamento para experimentar as opções disponíveis.</p>
-            <a href="payment.html" class="btn">Ir para Pagamento</a>
+            <a href="{{ url_for('payment.payment_checkout') }}" class="btn">Ir para Pagamento</a>
+            <h2>Fazer login</h2>
+            <a href="{{url_for('auth.sign_up')}}">sign up</a>
         </section>
     </main>
     <footer>

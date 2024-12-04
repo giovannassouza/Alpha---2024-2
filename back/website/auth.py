@@ -12,7 +12,7 @@ auth = Blueprint('auth', __name__)
 def checked_in():
     return True if current_user.is_authenticated else False
 
-@auth.route('/login/authenticate', methods=['POST'])
+@auth.route('/login/authenticate', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
         id_method = request.form.get('id_method')

@@ -28,6 +28,10 @@ def create_app():
     app.config['SECRET_KEY'] = APP_SECRET # LITERALMENTE QUALQUER COISA ALEATÓRIA
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
     
+    # login_manager = LoginManager()
+    # login_manager.login_view = 'auth.login'
+    # login_manager.init_app(app)
+
     from .views import views
     from .auth import auth
     from .payment import payment

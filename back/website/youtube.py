@@ -1,12 +1,14 @@
+import threading
 import yt_dlp
-import vlc
 import os
-import time
+from flask import Flask, request, jsonify, render_template
+
+app = Flask(__name__)
 
 def download_video(url, output_path):
     """
     Faz o download do vídeo usando yt-dlp e salva no diretório especificado.
-    Retorna o caminho completo do arquivo baixado.
+    Retorna a URL de incorporação do vídeo.
     """
     ydl_opts = {
         'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),  # Salva o vídeo com o título e a extensão
@@ -17,48 +19,52 @@ def download_video(url, output_path):
             # Baixa o vídeo
             result = ydl.extract_info(url, download=True)
             
-            # O nome do arquivo gerado é obtido através do 'prepare_filename'
-            video_filename = ydl.prepare_filename(result)  # Pega o caminho do arquivo com o nome do vídeo
-            print(f"Vídeo baixado com sucesso para {video_filename}")
+            # O ID do vídeo no YouTube
+            video_id = result['id']  # ID do vídeo para usar no link de incorporação
+            print(f"Vídeo baixado com sucesso: {video_id}")
             
-            return video_filename  # Retorna o caminho do arquivo baixado
+            return video_id  # Retorna o ID do vídeo baixado
     except Exception as e:
         print(f"Erro ao baixar o vídeo: {e}")
         return None
 
-def play_video(video_path):
-    """
-    Reproduz o vídeo usando a biblioteca VLC.
-    """
-    try:
-        # Criação do objeto de player VLC
-        player = vlc.MediaPlayer(video_path)
-        player.play()
-        
-        # Aguardar enquanto o vídeo está sendo reproduzido
-        while player.is_playing():
-            time.sleep(1)  # Aguardar o término da reprodução
-        print("Vídeo terminado.")
-    except Exception as e:
-        print(f"Erro ao tentar reproduzir o vídeo: {e}")
+@app.route('/')
+def home():
+    return "API OK"
 
-if __name__ == "__main__":
-    # URL do vídeo que deseja baixar e reproduzir
-    url = "https://www.youtube.com/watch?v=-J_w9K6DgRo"  #URL do vídeo desejado
+# Rota para baixar o vídeo
+@app.route('/videos/download', methods=['POST'])
+def api_download_video():
+    data = request.get_json()  # Obtém os dados JSON da requisição
+    url = data.get('url')  # URL do vídeo
+    if not url:
+        return jsonify({'error': 'URL não fornecida'}), 400
 
-    # Diretório onde o script está sendo executado (diretório de backend)
-    current_dir = os.getcwd()  # Obtém o diretório atual de execução do script (backend)
-    
-    # Caminho do diretório de download, dentro do próprio diretório do projeto
-    output_path = os.path.join(current_dir, 'downloads')  # Pasta 'downloads' dentro do diretório do backend
-
-    # Verificar e criar o diretório 'downloads' se não existir
+    # Diretório de downloads
+    current_dir = os.getcwd()
+    output_path = os.path.join(current_dir, 'downloads')
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    # Passo 1: Baixar o vídeo
-    video_filename = download_video(url, output_path)
+    # Baixa o vídeo e obtém o ID do vídeo
+    video_id = download_video(url, output_path)
+    
+    if video_id:
+        # Gera a URL de incorporação para o YouTube
+        embed_url = f"https://www.youtube.com/embed/{video_id}"
+        return jsonify({'message': 'Vídeo baixado com sucesso', 'embed_url': embed_url}), 200
+    else:
+        return jsonify({'error': 'Erro ao baixar o vídeo'}), 500
 
-    # Passo 2: Se o vídeo foi baixado com sucesso, reproduza-o
-    if video_filename:
-        play_video(video_filename)
+# Rota para mostrar a interface do YouTube no Front-end
+@app.route('/video', methods=['GET'])
+def show_video():
+    video_id = request.args.get('video_id')  # ID do vídeo passado como parâmetro
+    if video_id:
+        embed_url = f"https://www.youtube.com/embed/{video_id}"
+        return render_template('video_player.html', embed_url=embed_url)
+    else:
+        return "Vídeo não encontrado", 404
+
+if __name__ == "__main__":
+    app.run(debug=True)

@@ -3,7 +3,7 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from authlib.integrations.flask_client import OAuth
-from .api_key import APP_SECRET, DB_NAME, CLIENT_SECRET, CLIENT_ID
+from .api_key import APP_SECRET, DB_NAME, CLIENT_SECRET, CLIENT_ID 
 from flask_login import LoginManager
 
 
@@ -48,10 +48,8 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(payment, url_prefix='/')
-<<<<<<< Updated upstream
     app.register_blueprint(quiz, url_prefix='/')
 
-=======
     
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
@@ -63,7 +61,6 @@ def create_app():
         # Return the user object for the given user_id
         return models.User.query.get(int(id))
     
->>>>>>> Stashed changes
     return app
 
 

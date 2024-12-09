@@ -2,7 +2,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import textwrap
 
-def gerar_certificado_pdf(nome_usuario, nome_curso, numero_horas, caminho_certificado='certificado.pdf'):
+def gerar_certificado_pdf(nome_usuario, nome_curso, numero_horas, caminho_certificado='back\website\static\certificado.pdf'):
 
     largura, altura = letter  
     c = canvas.Canvas(caminho_certificado, pagesize=letter)
@@ -37,5 +37,4 @@ def gerar_certificado_pdf(nome_usuario, nome_curso, numero_horas, caminho_certif
     
     return caminho_certificado
 
-# gerar_certificado_pdf("Luis Filipe", "Introdução a empreendedorismo", 14, 'certificado.pdf')
 

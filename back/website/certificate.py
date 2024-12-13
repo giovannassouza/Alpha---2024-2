@@ -13,14 +13,29 @@ certificate = Blueprint('certificate', __name__)
 def get_certificate():
     try:
         user_id = current_user.get_id()
-        query = db.select(CursosEmProgresso.curso_id).where(CursosEmProgresso.user_id == user_id)
-        cursosFeitos = db.session.execute(db.select(Curso).where(Curso.id.in_(query))).scalars().first()
-        user_data = db.session.execute(db.select(User).where(User.id == user_id)).scalar_one()
-        filename = secure_filename(f"certificado.pdf")
-        file_path = gerar_certificado_pdf(user_data.full_name, cursosFeitos.nome, cursosFeitos.horas_estimado)
-        download_url = url_for('certificate.download_certificate', filename=filename)
 
-        return render_template('certificate_ready.html', download_url=download_url)
+        query = db.select(CursosEmProgresso.curso_id).where(
+             (CursosEmProgresso.user_id == user_id) & (CursosEmProgresso.progresso >95))
+        cursosFeitos = db.session.execute(db.select(Curso).where(Curso.id.in_(query))).scalars().all()
+
+        user_data = db.session.execute(db.select(User).where(User.id == user_id)).scalar_one()
+
+        download_urls = []
+        for curso in cursosFeitos:
+                    filename = secure_filename(f"certificado_{curso.nome}.pdf")
+                    file_path = gerar_certificado_pdf(
+                        user_data.full_name,
+                        curso.nome,
+                        curso.horas_estimado,
+                        caminho_certificado=f'back/website/static/{filename}'
+                    )
+                    print(f"Certificado salvo em: {file_path}")
+
+                    # Adicionar URL de download à lista
+                    download_url = url_for('certificate.download_certificate', filename=filename)
+                    download_urls.append({'curso': curso.nome, 'url': download_url})
+
+        return render_template('certificate_ready.html', download_urls=download_urls)
 
     except Exception as e:
         # e holds description of the error

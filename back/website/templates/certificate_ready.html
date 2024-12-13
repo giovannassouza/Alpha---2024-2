@@ -6,10 +6,20 @@
     <title>Certificado pronto!</title>
 </head>
 <body>
-    <h1>Seu certificado está pronto!</h1>
-    <p>Clique no botão para baixar seu certificado:</p>
-    <a href="{{ download_url }}" download>
-        <button>Baixar</button>
-    </a>
+    {% if download_urls %}
+    <h1>Seus Certificados</h1>
+    <ul>
+        {% for certificado in download_urls %}
+            <li>
+                <strong>{{ certificado.curso }}</strong>: 
+                <a href="{{ certificado.url }}" download>Clique aqui para baixar</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <h1>Sem certificados disponíveis</h1>
+    <p>Você ainda não concluiu nenhum curso com mais de 95% de progresso.</p>
+    {% endif %}
+
 </body>
 </html>

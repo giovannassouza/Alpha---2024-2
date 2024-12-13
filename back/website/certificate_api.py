@@ -1,11 +1,17 @@
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import textwrap
+import os
 
-def gerar_certificado_pdf(nome_usuario, nome_curso, numero_horas, caminho_certificado='back\website\static\certificado.pdf'):
-
+def gerar_certificado_pdf(nome_usuario, nome_curso, numero_horas, caminho_certificado='back/website/static/Certificado.pdf'):
+    # Garante que o diretório exista
+    dir_path = os.path.dirname(caminho_certificado)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    
     largura, altura = letter  
     c = canvas.Canvas(caminho_certificado, pagesize=letter)
+
     # Desenha o retângulo bege atrás
     c.setFillColorRGB(255/255, 227/255,172/255)
     c.rect(largura/2-280, altura-766, 560, 740,fill=1, stroke=0)

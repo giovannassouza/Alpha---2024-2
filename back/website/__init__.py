@@ -3,7 +3,7 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from authlib.integrations.flask_client import OAuth
-from .api_key import APP_SECRET, DB_NAME, CLIENT_SECRET, CLIENT_ID
+from .api_key import APP_SECRET,USER,PASSWORD,HOST, PORT, DB_NAME, CLIENT_SECRET, CLIENT_ID
 from flask_login import LoginManager
 
 
@@ -26,7 +26,7 @@ def create_app():
     # Flask app setup
     app = Flask(__name__)
     app.config['SECRET_KEY'] = APP_SECRET # LITERALMENTE QUALQUER COISA ALEATÓRIA
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+mysqldb://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
     
     from .views import views
     from .auth import auth

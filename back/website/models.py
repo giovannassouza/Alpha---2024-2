@@ -70,14 +70,13 @@ class AcervoDeQuestoes(db.Model):
 
 class Questao(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    enunciado = db.Column(db.String(3600))
-    alternativa_A = db.Column(db.String(3600))
-    alternativa_B = db.Column(db.String(3600))
-    alternativa_C = db.Column(db.String(3600))
-    alternativa_D = db.Column(db.String(3600))
-    alternativa_E = db.Column(db.String(3600))
+    enunciado = db.Column(db.Text)
+    alternativa_A = db.Column(db.Text)
+    alternativa_B = db.Column(db.Text)
+    alternativa_C = db.Column(db.Text)
+    alternativa_D = db.Column(db.Text)
+    alternativa_E = db.Column(db.Text)
     resposta_correta = db.Column(db.String(1))
-
 class RespostaAoQuestionario(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     questionario_id = db.Column(db.Integer, db.ForeignKey("questionario.id"), primary_key=True)

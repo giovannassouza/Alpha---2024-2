@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, Flask, render_template, send_file, url_for
+from flask import Blueprint, Flask, jsonify, render_template, send_file, url_for
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from .certificate_api import gerar_certificado_pdf
@@ -35,7 +35,7 @@ def get_certificate():
                     download_url = url_for('certificate.download_certificate', filename=filename)
                     download_urls.append({'curso': curso.nome, 'url': download_url})
 
-        return render_template('certificate_ready.html', download_urls=download_urls)
+        return jsonify(download_urls)
 
     except Exception as e:
         # e holds description of the error

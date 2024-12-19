@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from flasgger import Swagger
 from os import path
 from authlib.integrations.flask_client import OAuth
 from .api_key import APP_SECRET,USER,PASSWORD,HOST, PORT, DB_NAME, CLIENT_SECRET, CLIENT_ID
@@ -9,6 +10,13 @@ from flask_login import LoginManager
 
 db = SQLAlchemy()
 oauth = OAuth()
+swagger = Swagger(template={
+        'info': {
+            'title': 'Tina - Gestão de canTINAs',
+            'description': 'APIs desenvolvidas para o funcionamento do aplicativo Tina.',
+            'version': "1.0.0"
+        }
+    })
 google = oauth.register(
     name = 'google',
     client_id = 'CLIENT_ID',
@@ -26,7 +34,7 @@ def create_app():
     # Flask app setup
     app = Flask(__name__)
     app.config['SECRET_KEY'] = APP_SECRET # LITERALMENTE QUALQUER COISA ALEATÓRIA
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+mysqldb://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
     
     from .views import views
     from .auth import auth
@@ -38,6 +46,9 @@ def create_app():
     
     # Initialize the database with the app
     db.init_app(app)
+    
+    # Initialize swagger for documentation
+    swagger.init_app(app)
     
     # Imports classes from models
     from .models import User, CursosEmProgresso, Curso, Questionario, Questao, Ementa, Aula, VideoAula, AcervoDeQuestoes, RespostaAoQuestionario

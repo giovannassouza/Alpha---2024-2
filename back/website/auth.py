@@ -10,10 +10,49 @@ auth = Blueprint('auth', __name__)
 @auth.route('/checked-in')
 @login_required
 def checked_in():
+    """
+    Verifica se o usuário está autenticado
+    ---
+    tags:
+      - Autenticação
+    responses:
+      200:
+        description: Retorna True se o usuário estiver autenticado
+        content:
+          application/json:
+            example: true
+      401:
+        description: O usuário não está autenticado
+    """
     return True if current_user.is_authenticated else False
 
 @auth.route('/login/authenticate', methods=['POST'])
 def login():
+    """
+    Login do usuário
+    ---
+    tags:
+      - Autenticação
+    parameters:
+      - in: body
+        name: body
+        description: Dados para login
+        required: true
+        schema:
+          type: object
+          properties:
+            id_method:
+              type: string
+              example: "user@example.com"
+            password:
+              type: string
+              example: "password123"
+    responses:
+      200:
+        description: Login bem-sucedido
+      401:
+        description: Credenciais inválidas
+    """
     if request.method == 'POST':
         id_method = request.form.get('id_method')
         user_password = request.form.get('password')
@@ -40,6 +79,50 @@ def login():
 
 @auth.route('/sign-up', methods=['POST', 'GET'])
 def sign_up():
+    """
+    Cadastro de novo usuário
+    ---
+    tags:
+      - Autenticação
+    parameters:
+      - in: body
+        name: body
+        description: Dados para cadastro
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: "user@example.com"
+            password:
+              type: string
+              example: "password123"
+            password_check:
+              type: string
+              example: "password123"
+            full_name:
+              type: string
+              example: "John Doe"
+            birth_date:
+              type: string
+              format: date
+              example: "1990-01-01"
+            cpf:
+              type: string
+              example: "12345678900"
+            cliente_tina:
+              type: boolean
+              example: true
+            keep_logged_in:
+              type: boolean
+              example: true
+    responses:
+      200:
+        description: Usuário cadastrado com sucesso
+      400:
+        description: Dados inválidos ou usuário já registrado
+    """
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -98,6 +181,15 @@ def sign_up():
 @auth.route('/logout')
 @login_required
 def logout():
+    """
+    Logout do usuário
+    ---
+    tags:
+      - Autenticação
+    responses:
+      302:
+        description: Redireciona para a página de login após o logout
+    """
     logout_user()
     return redirect(url_for('auth.login'))
 

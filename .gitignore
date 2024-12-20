@@ -7,7 +7,8 @@ back\website\__pycache__/
 /back/website/__pycache__/
 back/test/__pycache__/
 back/website/__pycache__/
-*.pyc
+*.cpython-310.pyc
 back/website/api_key.py
 /back/instance
 /back/website/__pycache__
+*.pdf

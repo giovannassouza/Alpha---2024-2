@@ -8,6 +8,44 @@ quiz = Blueprint('quiz',__name__)
 
 @quiz.route('/quiz/forms', methods = ['GET','POST'])
 def quizWrite():
+    """
+    Criar nova questão para o quiz
+    ---
+    tags:
+      - Quiz
+    parameters:
+      - in: body
+        name: body
+        description: Dados da questão
+        required: true
+        schema:
+          type: object
+          properties:
+            enunciado:
+              type: string
+              example: "Qual é a capital da França?"
+            alternativa_A:
+              type: string
+              example: "Paris"
+            alternativa_B:
+              type: string
+              example: "Londres"
+            alternativa_C:
+              type: string
+              example: "Roma"
+            alternativa_D:
+              type: string
+              example: "Berlim"
+            alternativa_E:
+              type: string
+              example: "Madri"
+            resposta_correta:
+              type: string
+              example: "Paris"
+    responses:
+      200:
+        description: Formulário renderizado ou questão salva com sucesso
+    """
     if(request.method == 'POST'):
         enunciado = request.form.get('enunciado')
         alternativa_A = request.form.get('alternativa_A')
@@ -23,6 +61,20 @@ def quizWrite():
 
 @quiz.route('/quiz', methods = ['GET'])
 def quizRead():
+    """
+    Exibir questões de um questionário
+    ---
+    tags:
+      - Quiz
+    responses:
+      200:
+        description: Texto HTML contendo as questões do questionário
+        content:
+          text/html:
+            example: "<html><ul><li>...</li></ul></html>"
+      500:
+        description: Erro ao carregar o questionário
+    """
     try:
         questionario = db.session.execute(db.select(Questionario).filter_by(id = 1)).scalar_one()
 

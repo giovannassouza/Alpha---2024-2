@@ -8,6 +8,18 @@ payment = Blueprint('payment', __name__)
 @payment.route('/payment_checkout')
 # @login_required
 def payment_checkout(): 
+    """
+    Página de checkout de pagamento
+    ---
+    tags:
+      - Pagamentos
+    responses:
+      200:
+        description: Página com os links de pagamento
+        content:
+          text/html:
+            example: "<html>...</html>"
+    """
     link_mensal = create_payment_monthly()
     link_anual  = create_payment_anual()
     link_eterno = create_payment_eternal()

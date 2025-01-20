@@ -1,4 +1,4 @@
-from flask import Blueprint, url_for, redirect, session, request, flash, render_template
+from flask import Blueprint, url_for, redirect, session, request, flash, render_template#, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import oauth, db, google
@@ -7,10 +7,14 @@ from datetime import datetime
 
 auth = Blueprint('auth', __name__)
 
-@auth.route('/checked-in')
+@auth.route('/checked-in', methods=['GET'])
 @login_required
 def checked_in():
-    return True if current_user.is_authenticated else False
+    return render_template('home.html')
+
+# @auth.route('/experiment', methods=['GET', 'POST'])
+# def experiment():
+#     if request.method == 'POST':
 
 @auth.route('/login/authenticate', methods=['POST'])
 def login():
@@ -100,6 +104,54 @@ def sign_up():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+@auth.route('/account-info', methods=['POST', 'GET'])
+@login_required
+def update_account():
+    if request.method == 'POST':
+        full_name = request.form.get('full_name')
+        email = request.form.get('email')
+        cpf = request.form.get('cpf')
+        data_nasc = request.form.get('data_nasc')
+        cliente_tina = request.form.get('cliente_tina')
+        keep_logged_in = request.form.get('keep_logged_in')
+        
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        new_password_check = request.form.get('check_new_password')
+        
+        if current_user:
+            
+            if full_name:
+                current_user.full_name = full_name
+            
+            if email:
+                current_user.email = email
+            
+            if cpf:
+                if validate_cpf(cpf):
+                    current_user.cpf = cpf
+            
+            if data_nasc:
+                if data_nasc < datetime.now():
+                    current_user.data_nasc = data_nasc
+            
+            if cliente_tina:
+                current_user.cliente_tina = cliente_tina
+            
+            if new_password:
+                if current_user.check_password(old_password):
+                    if new_password == new_password_check:
+                        current_user.set_password(new_password)
+            
+            db.session.commit()
+            login_user(current_user, remember=keep_logged_in)
+            flash('Account updated.', category='success')
+        else:
+            flash('You are not logged in.', category='error')
+            return redirect(url_for('views.login'))
+    
+    return render_template('account-info.html')
 
 def create_user(
     email: str,

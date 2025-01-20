@@ -142,7 +142,7 @@ def test_signup_different_passwords(client, app):
         assert User.query.count() == 0
 
 def test_signup_invalid_birth_date(client, app):
-    client.post(
+    response = client.post(
         '/sign-up',
         data={
             'email': 'test1@test.com',
@@ -172,7 +172,15 @@ def test_email_login(client, app):
         }
     )
     
-    client.post(
+    response = client.get('/checked_in')
+    
+    assert b'<!doctype html>' in response.data
+    
+    response = client.post('logout')
+    
+    assert b'<!doctype html>' in response.data
+    
+    response = client.post(
         '/login',
         data = {
             'id_method': 'test1@test.com',
@@ -181,9 +189,9 @@ def test_email_login(client, app):
         }
     )
     
-    assert checked_in()
+    assert b'<!doctype html>' in response.data
 
-def test_email_cpf(client, app):
+def test_cpf_login(client, app):
     client.post(
         '/sign-up',
         data={
@@ -206,7 +214,8 @@ def test_email_cpf(client, app):
         }
     )
     
-    assert checked_in()
+    with app.app_context():
+        assert checked_in()
 
 def test_login_after_signup(client, app):
     client.post(
@@ -222,14 +231,42 @@ def test_login_after_signup(client, app):
         }
     )
     
-    assert checked_in()
+    with app.app_context():
+        assert checked_in()
 
-# def test_login(client, app):
-#     client.post(
-#         '/sign-up',
-#         data={
-#             'id_method': 'test@test.com',
-#             'password': 'test1234',
-#             'keep_logged_in': True
-#         }
-#     )
+def test_invalid_login(client, app):
+    client.post(
+        '/login',
+        data={
+            'id_method': 'test1@test.com',
+            'password': 'test1234',
+            'keep_logged_in': True
+        }
+    )
+    
+    with app.app_context():
+        assert not checked_in()
+
+def test_logout(client, app):
+    client.post(
+        '/sign-up',
+        data={
+            'email': 'test1@test.com',
+            'password': 'test1234',
+            'password_check': 'test1234',
+            'full_name': 'Tester',
+            'birth_date': datetime.strftime(datetime.now(), '%Y-%m-%d'),
+            'cpf': '111.111.111-11', # Aleatório
+            'keep_logged_in': True
+        }
+    )
+    
+    with app.app_context():
+        assert checked_in()
+    
+    client.get(
+        '/logout'
+    )
+    
+    with app.app_context():
+        assert not checked_in()

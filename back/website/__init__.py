@@ -28,10 +28,15 @@ def create_app():
     app.config['SECRET_KEY'] = APP_SECRET # LITERALMENTE QUALQUER COISA ALEATÓRIA
     app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+mysqldb://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
     
+    # login_manager = LoginManager()
+    # login_manager.login_view = 'auth.login'
+    # login_manager.init_app(app)
+
     from .views import views
     from .auth import auth
     from .payment import payment
     from .quiz import quiz
+    from .certificate import certificate
     
     # Initialize OAuth
     oauth.init_app(app) # create authentication instance attached to app
@@ -49,6 +54,7 @@ def create_app():
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(payment, url_prefix='/')
     app.register_blueprint(quiz, url_prefix='/')
+    app.register_blueprint(certificate, url_prefix='/')
 
     
     login_manager = LoginManager()

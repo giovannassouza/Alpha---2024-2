@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado pronto!</title>
+</head>
+<body>
+    {% if download_urls %}
+    <h1>Seus Certificados</h1>
+    <ul>
+        {% for certificado in download_urls %}
+            <li>
+                <strong>{{ certificado.curso }}</strong>: 
+                <a href="{{ certificado.url }}" download>Clique aqui para baixar</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <h1>Sem certificados disponíveis</h1>
+    <p>Você ainda não concluiu nenhum curso com mais de 95% de progresso.</p>
+    {% endif %}
+
+</body>
+</html>

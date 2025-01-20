@@ -16,7 +16,7 @@ def checked_in():
 # def experiment():
 #     if request.method == 'POST':
 
-@auth.route('/login/authenticate', methods=['POST'])
+@auth.route('/login/authenticate', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
         id_method = request.form.get('id_method')

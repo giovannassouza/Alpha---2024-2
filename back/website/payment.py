@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, Flask, jsonify, render_template
+from flask import Blueprint, Flask, jsonify, render_template, request
 from flask_login import login_required, current_user
 import requests
 from .models import Assinaturas
+from .json_responses import successful_response, error_response
 from .payment_api import create_payment_eternal, create_payment_anual, create_payment_monthly
 
 payment = Blueprint('payment', __name__)
@@ -13,8 +14,17 @@ def payment_checkout():
     link_mensal = create_payment_monthly()
     link_anual  = create_payment_anual()
     link_eterno = create_payment_eternal()
-    return jsonify({"link_anual": link_anual, "link_mensal": link_mensal, "link_eterno": link_eterno})
-    # return render_template("payment.html", link_anual=link_anual, link_mensal=link_mensal, link_eterno=link_eterno)
+    try:
+        request.form.get('choosen_preference')
+        return successful_response(
+            description="Successfully generated the payment preferences and choosen preference",
+            data=jsonify({"link_anual": link_anual, "link_mensal": link_mensal, "link_eterno": link_eterno}))
+    
+    except Exception as e:
+        return error_response(
+            description="Could not get choosen preference. Perhaps you forgot to choose the payment type?",
+            error_details={"exception": e}
+        )
 
  
 @payment.route('/payment_done')

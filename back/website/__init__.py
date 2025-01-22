@@ -26,7 +26,7 @@ def create_app():
     # Flask app setup
     app = Flask(__name__)
     app.config['SECRET_KEY'] = APP_SECRET # LITERALMENTE QUALQUER COISA ALEATÓRIA
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+mysqldb://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
+    app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{DB_NAME}'
     
     # login_manager = LoginManager()
     # login_manager.login_view = 'auth.login'

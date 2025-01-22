@@ -1,8 +1,14 @@
 import mercadopago
 from .api_key import mercadoPago_key
+from . import app_url
 #   Existe um problema no back_urls, por estar em localhost o retorno dá um erro,
 #   isso é previsto no site mas deve arrumar quando fizermos o deploy
 
+back_urls= {
+            "success": app_url +"/payment_done",
+            "failure": app_url +"/payment_denied",
+            "pending": app_url +"/payment_denied",
+        }
 
 def create_payment_anual():
     # Credenciais de teste
@@ -19,11 +25,7 @@ def create_payment_anual():
 
             },
         ],
-        "back_urls": {
-            "success": "https://127.0.0.1:5000/payment_done",
-            "failure": "https://127.0.0.1:5000/payment_denied",
-            "pending": "https://127.0.0.1:5000/payment_denied",
-        },
+        "back_urls": back_urls,
         "auto_return": "all",
         
     }
@@ -49,11 +51,7 @@ def create_payment_monthly():
                 "unit_price": 42.83,
             },
         ],
-        "back_urls": {
-            "success": "https://127.0.0.1:5000/payment_done",
-            "failure": "https://127.0.0.1:5000/payment_denied",
-            "pending": "https://127.0.0.1:5000/payment_denied",
-        },
+        "back_urls": back_urls,
         "auto_return": "all",
         
     }
@@ -78,11 +76,7 @@ def create_payment_eternal():
                 "unit_price": 234.83,
             },
         ],
-        "back_urls": {
-            "success": "https://127.0.0.1:5000/payment_done",
-            "failure": "https://127.0.0.1:5000/payment_denied",
-            "pending": "https://127.0.0.1:5000/payment_denied",
-        },
+        "back_urls": back_urls,
         "auto_return": "all",
         
     }
@@ -92,3 +86,5 @@ def create_payment_eternal():
     payment_link = preference["init_point"]
     
     return payment_link
+
+create_payment_eternal()

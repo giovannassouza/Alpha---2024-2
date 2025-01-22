@@ -7,13 +7,14 @@ from datetime import datetime
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(150), unique=True)
+    email = db.Column(db.String(300), unique=True)
     cpf = db.Column(db.String(15), nullable=True, unique=True)
     password = db.Column(db.String(150), nullable=True)
     full_name = db.Column(db.String(200))
     data_nasc = db.Column(db.DateTime(timezone=True), nullable=True)
     data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
     cliente_tina = db.Column(db.Integer, nullable=False)
+    assinante   = db.Column(db.Integer, nullable=True, default=0)
     google_linked = db.Column(db.Integer, nullable=False, default=0)
     
     def set_password(self, password: str):
@@ -82,3 +83,10 @@ class RespostaAoQuestionario(db.Model):
     questionario_id = db.Column(db.Integer, db.ForeignKey("questionario.id"), primary_key=True)
     pontuacao = db.Column(db.Integer)
     data_realizacao = db.Column(db.DateTime(timezone=True))
+
+class Assinaturas(db.Model):
+    assinatura_id   = db.Column(db.Integer, primary_key=True, autoincrement="ignore_fk")
+    user_id         = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    inicio          = db.Column(db.Date)
+    fim             = db.Column(db.Date)
+    TipoAssinatura  = db.Column(db.Integer, nullable = True)

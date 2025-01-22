@@ -6,7 +6,7 @@ from authlib.integrations.flask_client import OAuth
 from .api_key import APP_SECRET,USER,PASSWORD,HOST, PORT, DB_NAME, CLIENT_SECRET, CLIENT_ID
 from flask_login import LoginManager
 
-
+app_url = "127.0.0.1:5000"
 db = SQLAlchemy()
 oauth = OAuth()
 google = oauth.register(

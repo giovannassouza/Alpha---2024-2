@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Pagamento</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        function updateHiddenInput() {
+            var selectedPlan = document.getElementById("planSelect").value;
+            var hiddenInput = document.getElementById("choosen_preference");
+
+            // Atualiza o valor do campo oculto com base no plano selecionado
+            if (selectedPlan === "{{link_mensal}}") {
+                hiddenInput.value = 0; // Mensal
+            } else if (selectedPlan === "{{link_anual}}") {
+                hiddenInput.value = 1; // Anual
+            } else if (selectedPlan === "{{link_eterno}}") {
+                hiddenInput.value = 2; // Vitalício
+            }
+        }
+
+        function submitForm() {
+            updateHiddenInput(); // Atualiza o campo oculto antes de enviar o formulário
+            document.getElementById("paymentForm").submit(); // Envia o formulário
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -19,14 +39,21 @@
     <main>
         <section>
             <h2>Selecione uma Opção de Pagamento</h2>
-            <a href={{link_mensal}}>Acesso por um mês</a>
-            <a href={{link_anual}}>Acesso por um ano</a>
-            <a href={{link_eterno}}>Acesso vitalício</a>
-
+            <form id="paymentForm" action="{{ url_for('payment.process_payment') }}" method="POST">
+                <select id="planSelect" onchange="updateHiddenInput()">
+                    <option value="">Selecione um plano</option>
+                    <option value="{{link_mensal}}">Acesso por um mês</option>
+                    <option value="{{link_anual}}">Acesso por um ano</option>
+                    <option value="{{link_eterno}}">Acesso vitalício</option>
+                </select>
+                <!-- Campo oculto para enviar a escolha do plano -->
+                <input type="hidden" id="choosen_preference" name="choosen_preference" value="">
+                <button type="button" onclick="submitForm()">Continuar para o Pagamento</button>
+            </form>
         </section>
     </main>
     <footer>
         <p>© 2024 Página de Teste de Pagamento</p>
     </footer>
 </body>
-
+</html>

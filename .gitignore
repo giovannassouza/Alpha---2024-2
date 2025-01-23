@@ -12,3 +12,4 @@ back/website/api_key.py
 /back/instance
 /back/website/__pycache__
 *.pdf
+/back/website/__pycache__

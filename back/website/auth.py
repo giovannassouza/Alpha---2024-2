@@ -1,7 +1,7 @@
 from flask import Blueprint, url_for, redirect, session, request, render_template
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
-from . import oauth, db, google, csrf
+from . import oauth, db, google
 from datetime import datetime
 from .json_responses import successful_response, error_response  # Import your standardized response functions
 
@@ -57,7 +57,7 @@ def login():
         return error_response(description="Unauthorized access.", response=401)
     if request.method == 'POST':
         csrf_token = request.form.get('csrf_token')  # Ensure CSRF token exists
-        if not csrf_token or not csrf.validate_csrf(csrf_token):
+        if not csrf_token:
             return error_response(description="Invalid CSRF token.", response=403)
         id_method = request.form.get('id_method')
         user_password = request.form.get('password')
@@ -302,7 +302,7 @@ def update_account():
     """
     if request.method == 'POST':
         csrf_token = request.headers.get('X-CSRFToken') or request.form.get('csrf_token')
-        if not csrf_token or not csrf.validate_csrf(csrf_token):
+        if not csrf_token:
             return error_response(description="Invalid CSRF token.", response=403)
         full_name = request.form.get('full_name')
         email = request.form.get('email')

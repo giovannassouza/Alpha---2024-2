@@ -3,8 +3,9 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from authlib.integrations.flask_client import OAuth
-from .api_key import APP_SECRET,USER,PASSWORD,HOST, PORT, DB_NAME, CLIENT_SECRET, CLIENT_ID
+from .api_key import APP_SECRET, USER, PASSWORD, HOST, PORT, DB_NAME, CLIENT_SECRET, CLIENT_ID, FRONT_END_URLS
 from flask_login import LoginManager
+from flask_cors import CORS
 
 
 db = SQLAlchemy()
@@ -28,10 +29,13 @@ def create_app():
     app.config['SECRET_KEY'] = APP_SECRET # LITERALMENTE QUALQUER COISA ALEATÓRIA
     app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{DB_NAME}'
     
-    # login_manager = LoginManager()
-    # login_manager.login_view = 'auth.login'
-    # login_manager.init_app(app)
-
+    # Configuração do CORS com suporte a múltiplos domínios
+    CORS(app, resources={r"/*": {"origins": FRONT_END_URLS}})
+    
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
+    
     from .views import views
     from .auth import auth
     from .payment import payment

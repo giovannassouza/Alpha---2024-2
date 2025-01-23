@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from flasgger import Swagger
 from os import path
 from authlib.integrations.flask_client import OAuth
 from .api_key import APP_SECRET, USER, PASSWORD, HOST, PORT, DB_NAME, CLIENT_SECRET, CLIENT_ID, FRONT_END_URLS
 from flask_login import LoginManager
 from flask_cors import CORS
+from flask_wtf.csrf import CSRFProtect
 
 
 db = SQLAlchemy()
@@ -22,16 +24,30 @@ google = oauth.register(
     api_base_url = 'https://www.googleapis.com/oauth2/v1/',
     client_kwargs = {'scope': 'openid profile email'}
 )
+csrf = CSRFProtect()
+swagger = Swagger()
 
 def create_app():
     # Flask app setup
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = APP_SECRET # LITERALMENTE QUALQUER COISA ALEATÓRIA
+    app.config['SECRET_KEY'] = APP_SECRET
     app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{DB_NAME}'
     
-    # Configuração do CORS com suporte a múltiplos domínios
+    # Documentation setup
+    swagger.init_app(app)
+    app.config['SWAGGER'] = {
+        'title': 'Tina: Gestão de Cantinas - API Documentation',
+        'uiversion': 3
+    }
+    
+    # Login protection setup
+    csrf.init_app(app)
+    app.config['WTF_CSRF_HEADERS'] = ['X-CSRFToken']
+    
+    # CORS setup
     CORS(app, resources={r"/*": {"origins": FRONT_END_URLS}})
     
+    # Login manager setup
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
@@ -41,6 +57,7 @@ def create_app():
     from .payment import payment
     from .quiz import quiz
     from .certificate import certificate
+    from .wtf_error import wtf_error
     
     # Initialize OAuth
     oauth.init_app(app) # create authentication instance attached to app
@@ -59,7 +76,7 @@ def create_app():
     app.register_blueprint(payment, url_prefix='/')
     app.register_blueprint(quiz, url_prefix='/')
     app.register_blueprint(certificate, url_prefix='/')
-
+    app.register_blueprint(wtf_error, url_prefix='/')
     
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

@@ -208,7 +208,7 @@ def sign_up():
     return render_template('sign-up.html')
 
 
-@auth.route('/logout')
+@auth.route('/logout', methods=['POST', 'GET'])
 @login_required
 def logout():
     """

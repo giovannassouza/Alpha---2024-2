@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Auth Test</title>
+</head>
+<body>
+    <h1>Simple Auth Test</h1>
+
+    <!-- Signup Form -->
+    <h2>Sign Up</h2>
+    <form action="/sign-up" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="email">Email:</label>
+        <input type="email" name="email" required>
+        <label for="password">Password:</label>
+        <input type="password" name="password" required>
+        <label for="password_check">Confirm Password:</label>
+        <input type="password" name="password_check" required>
+        <label for="full_name">Full Name:</label>
+        <input type="text" name="full_name" required>
+        <label for="birth_date">Birth Date:</label>
+        <input type="date" name="birth_date" required>
+        <label for="cpf">CPF:</label>
+        <input type="text" name="cpf" required>
+        <label for="cliente_tina">Cliente Tina:</label>
+        <input type="checkbox" name="cliente_tina" value="1">
+        <label for="keep_logged_in">Keep Logged In:</label>
+        <input type="checkbox" name="keep_logged_in" value="1">
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <!-- Login Form -->
+    <h2>Log In</h2>
+    <form action="/login/authenticate" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="id_method">Email or CPF:</label>
+        <input type="text" name="id_method" required>
+        <label for="password">Password:</label>
+        <input type="password" name="password" required>
+        <label for="keep_logged_in">Keep Logged In:</label>
+        <input type="checkbox" name="keep_logged_in" value="1">
+        <button type="submit">Log In</button>
+    </form>
+
+    <!-- Update Account Form -->
+    <h2>Update Account</h2>
+    <form action="/account-info" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="full_name">Full Name:</label>
+        <input type="text" name="full_name">
+        <label for="email">Email:</label>
+        <input type="email" name="email">
+        <label for="cpf">CPF:</label>
+        <input type="text" name="cpf">
+        <label for="data_nasc">Birth Date:</label>
+        <input type="date" name="data_nasc">
+        <label for="cliente_tina">Cliente Tina:</label>
+        <input type="checkbox" name="cliente_tina" value="1">
+        <label for="old_password">Old Password:</label>
+        <input type="password" name="old_password">
+        <label for="new_password">New Password:</label>
+        <input type="password" name="new_password">
+        <label for="check_new_password">Confirm New Password:</label>
+        <input type="password" name="check_new_password">
+        <label for="keep_logged_in">Keep Logged In:</label>
+        <input type="checkbox" name="keep_logged_in" value="1">
+        <button type="submit">Update Account</button>
+    </form>
+
+    <!-- Logout Form -->
+    <h2>Log Out</h2>
+    <form action="/logout" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">Log Out</button>
+    </form>
+</body>
+</html>

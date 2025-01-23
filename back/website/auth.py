@@ -3,8 +3,8 @@ from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import oauth, db, google
 from datetime import datetime
-from .json_responses import successful_response, error_response  # Import your standardized response functions
-from .utils import validate_cpf, create_user, user_online_check
+from .json_responses import successful_response, error_response
+from .utils import send_email, validate_cpf, create_user, user_online_check
 
 auth = Blueprint('auth', __name__)
 

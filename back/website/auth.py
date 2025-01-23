@@ -1,49 +1,48 @@
-from flask import Blueprint, url_for, redirect, session, request, flash, render_template#, jsonify
+from flask import Blueprint, url_for, redirect, session, request, render_template
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import oauth, db, google
-from website.models import *
 from datetime import datetime
+from .json_responses import successful_response, error_response  # Import your standardized response functions
 
 auth = Blueprint('auth', __name__)
 
-@auth.route('/checked-in', methods=['GET'])
-@login_required
-def checked_in():
-    return render_template('home.html')
-
-# @auth.route('/experiment', methods=['GET', 'POST'])
-# def experiment():
-#     if request.method == 'POST':
-
 @auth.route('/login/authenticate', methods=['POST', 'GET'])
 def login():
+    if current_user.is_authenticated:
+        return error_response(description="Unauthorized access.", response=401)
     if request.method == 'POST':
         id_method = request.form.get('id_method')
         user_password = request.form.get('password')
-        keep_logged_in = request.form.get('keep_logged_in')
+        keep_logged_in = bool(request.form.get('keep_logged_in'))
         
-        if '@' in id_method:
-            user = User.query.filter_by(email=id_method).first()
-        else:
-            user = User.query.filter_by(cpf=id_method).first()
+        try:
+            if '@' in id_method:
+                user = User.query.filter_by(email=id_method).first()
+            else:
+                user = User.query.filter_by(cpf=id_method).first()
+        except Exception as e:
+            return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
         
         if user:
             if user.check_password(user_password):
                 login_user(user, remember=keep_logged_in)
                 if current_user.is_authenticated:
-                    flash('Logged in successfully.', category='success')
+                    return successful_response(description="Logged in successfully.", data={"user": current_user.email})
                 else:
-                    flash('Error logging in.', category='error')
+                    return error_response(description="Error logging in.", response=500)
             else:
-                flash('User not found or incorrect password. Check your credentials.', category='error')
+                return error_response(description="Incorrect password. Check your credentials.", response=401)
         else:
-            flash('User not found or incorrect password. Check your credentials.', category='error')
+            return error_response(description="User not found. Check your credentials.", response=404)
     
-    return(render_template('login.html'))
+    return render_template('login.html')
+
 
 @auth.route('/sign-up', methods=['POST', 'GET'])
 def sign_up():
+    if current_user.is_authenticated:
+        return error_response(description="Unauthorized access.", response=401)
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -54,56 +53,56 @@ def sign_up():
         cliente_tina = request.form.get('cliente_tina')
         keep_logged_in = request.form.get('keep_logged_in')
         
-        if User.query.filter_by(email=email).count() >= 1:
-            flash('Email already registered in our database.', category='error')
-            #redirect(url_for('views.login'))
-            return 'Error. Email already registered.'
+        try:
+            if User.query.filter_by(email=email).count() >= 1:
+                return error_response(description="Email already registered.", response=409)
+        except Exception as e:
+            return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+        
         if '@' not in email:
-            flash('Invalid email. Check your credentials.', category='error')
-            #redirect(url_for('views.sign_up'))
-            return 'Error. Invalid email.'
+            return error_response(description="Invalid email.", response=400)
+        
         if password != check_password:
-            flash('Passwords do not match.', category='error')
-            #redirect(url_for('views.sign_up'))
-            return 'Error. Passwords do not match.'
+            return error_response(description="Passwords do not match.", response=400)
+        
         if birth_date >= datetime.now():
-            flash('Invalid birth date. Check your credentials.', category='error')
-            #redirect(url_for('views.sign_up'))
-            return 'Error. Invalid birth date.'
+            return error_response(description="Invalid birth date.", response=400)
+        
         if not validate_cpf(cpf):
-            flash('Invalid CPF.', category='error')
-            #redirect(url_for('views.sign_up'))
-            return 'Error. Invalid CPF.'
-        if User.query.filter_by(cpf=cpf).count() >= 1:
-            flash('CPF already registered.', category='error')
-            #redirect(url_for('views.login'))
-            return 'Error. CPF already registered'
+            return error_response(description="Invalid CPF.", response=400)
+        
+        try:
+            if User.query.filter_by(cpf=cpf).count() >= 1:
+                return error_response(description="CPF already registered.", response=409)
+        except Exception as e:
+            return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
         
         user = create_user(
-            email = email,
-            full_name = full_name,
-            cpf = cpf,
-            password = password,
-            data_nasc = birth_date,
-            cliente_tina = cliente_tina
+            email=email,
+            full_name=full_name,
+            cpf=cpf,
+            password=password,
+            data_nasc=birth_date,
+            cliente_tina=cliente_tina
         )
         
         login_user(user, remember=keep_logged_in)
         if current_user.is_authenticated:
-            flash('Signed up successfully.', category='success')
-            #redirect(url_for('views.home'))
-            return 'Success. Signed up successfully.'
+            return successful_response(description="Signed up successfully.", data={"user": current_user.email})
         else:
-            flash('Error logging in. Try again.', category='warning')
-            #redirect(url_for('views.login'))
-            return 'Error. Signed up, but error logging in.'
+            return error_response(description="Signed up but error logging in.", response=500)
+    
     return render_template('sign-up.html')
+
 
 @auth.route('/logout')
 @login_required
 def logout():
+    if not current_user.is_authenticated:
+        return error_response(description="Unauthorized access.", response=401)
     logout_user()
-    return redirect(url_for('auth.login'))
+    return successful_response(description="Logged out successfully.")
+
 
 @auth.route('/account-info', methods=['POST', 'GET'])
 @login_required
@@ -121,20 +120,23 @@ def update_account():
         new_password_check = request.form.get('check_new_password')
         
         if current_user:
-            
             if full_name:
                 current_user.full_name = full_name
             
             if email:
                 current_user.email = email
             
-            if cpf:
-                if validate_cpf(cpf):
-                    current_user.cpf = cpf
+            if cpf and validate_cpf(cpf):
+                current_user.cpf = cpf
             
             if data_nasc:
-                if data_nasc < datetime.now():
-                    current_user.data_nasc = data_nasc
+                try:
+                    data_nasc = datetime.strptime(data_nasc, '%Y-%m-%d').date()
+                    if data_nasc < datetime.now().date():
+                        current_user.data_nasc = data_nasc
+                except ValueError:
+                    return error_response(description="Invalid date format. Use YYYY-MM-DD.", response=400)
+            
             
             if cliente_tina:
                 current_user.cliente_tina = cliente_tina
@@ -146,10 +148,9 @@ def update_account():
             
             db.session.commit()
             login_user(current_user, remember=keep_logged_in)
-            flash('Account updated.', category='success')
+            return successful_response(description="Account updated successfully.", data={"user": current_user.email})
         else:
-            flash('You are not logged in.', category='error')
-            return redirect(url_for('views.login'))
+            return error_response(description="You are not logged in.", response=401)
     
     return render_template('account-info.html')
 
@@ -179,7 +180,7 @@ def create_user(
         google_linked = google_linked
     )
     
-    if password != None:
+    if password:
         new_user.set_password(password)
     
     db.session.add(new_user)
@@ -222,7 +223,11 @@ def authorize_google():
     user_info = resp.json()
     email = user_info.get('email')
     
-    user = User.query.filter_by(email=email)
+    try:
+        user = User.query.filter_by(email=email)
+    except Exception as e:
+        return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+    
     if not user:
         response = create_user(
             email = email,

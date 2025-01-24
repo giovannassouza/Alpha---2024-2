@@ -1,10 +1,10 @@
-from flask import Blueprint, url_for, redirect, session, request, render_template
+from flask import Blueprint, session, request, render_template
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import oauth, db, google
 from datetime import datetime
 from .json_responses import successful_response, error_response
-from .utils import send_email
+from .utils import send_verification_email, generate_verification_code
 
 auth = Blueprint('auth', __name__)
 
@@ -191,23 +191,57 @@ def sign_up():
         except Exception as e:
             return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
         
-        user = create_user(
-            email=email,
-            full_name=full_name,
-            cpf=cpf,
-            password=password,
-            data_nasc=birth_date,
-            cliente_tina=cliente_tina
-        )
+        verification_code = generate_verification_code()
+        send_verification_email(email=email, verification_code=verification_code)
         
-        login_user(user, remember=keep_logged_in)
-        if current_user.is_authenticated:
-            return successful_response(description="Signed up successfully.", data={"user": current_user.email})
-        else:
-            return error_response(description="Signed up but error logging in.", response=500)
+        # Temporarily store the verification code and user data
+        session['verification_code'] = verification_code
+        session['pending_user_data'] = {
+            'email': email,
+            'password': password,
+            'full_name': full_name,
+            'birth_date': birth_date.strftime('%Y-%m-%d'),
+            'cpf': cpf,
+            'cliente_tina': cliente_tina,
+            'keep_logged_in': keep_logged_in,
+        }
+        
+        return render_template('verify-email.html', email=email)
     
     return render_template('sign-up.html')
 
+@auth.route('/verify-email', methods=['POST'])
+def verify_email():
+    entered_code = request.form.get('verification_code')
+    
+    # Retrieve the expected code and user data from the session
+    expected_code = session.get('verification_code')
+    user_data = session.get('pending_user_data')
+    
+    if not expected_code or not user_data:
+        return error_response(description="Verification process expired. Please try signing up again.", response=400)
+    
+    if entered_code != expected_code:
+        return error_response(description="Invalid verification code.", response=400)
+    
+    # If the code is valid, create the user account
+    user = create_user(
+        email=user_data['email'],
+        full_name=user_data['full_name'],
+        cpf=user_data['cpf'],
+        password=user_data['password'],
+        data_nasc=datetime.strptime(user_data['birth_date'], '%Y-%m-%d'),
+        cliente_tina=user_data['cliente_tina']
+    )
+    
+    # Log the user in
+    login_user(user, remember=user_data['keep_logged_in'])
+    
+    # Clear session data
+    session.pop('verification_code', None)
+    session.pop('pending_user_data', None)
+    
+    return successful_response(description="Signed up successfully.", data={"user": current_user.email})
 
 @auth.route('/logout', methods=['POST', 'GET'])
 @login_required

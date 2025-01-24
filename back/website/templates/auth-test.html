@@ -10,7 +10,7 @@
 
     <!-- Signup Form -->
     <h2>Sign Up</h2>
-    <form action="/sign-up" method="POST">
+    <form action="/sign-up" method="POST" id="signUpForm">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="email">Email:</label>
         <input type="email" name="email" required>
@@ -29,6 +29,15 @@
         <label for="keep_logged_in">Keep Logged In:</label>
         <input type="checkbox" name="keep_logged_in" value="1">
         <button type="submit">Sign Up</button>
+    </form>
+
+    <!-- Email Verification Form (Only shows after Sign Up) -->
+    <h2>Email Verification</h2>
+    <form action="/verify-email" method="POST" id="verificationForm" style="display:none;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="verification_code">Enter the verification code sent to your email:</label>
+        <input type="text" name="verification_code" required>
+        <button type="submit">Verify Code</button>
     </form>
 
     <!-- Login Form -->
@@ -75,5 +84,21 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit">Log Out</button>
     </form>
+
+    <script>
+        // Handle form visibility based on signup success
+        document.getElementById('signUpForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+            
+            // Simulate sending the verification email
+            // Replace with actual API request if needed
+            var email = document.querySelector('[name="email"]').value;
+            alert("Verification code sent to " + email);
+            
+            // Hide the sign-up form and show the verification form
+            document.getElementById('signUpForm').style.display = 'none';
+            document.getElementById('verificationForm').style.display = 'block';
+        });
+    </script>
 </body>
 </html>

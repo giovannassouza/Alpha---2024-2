@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Criação de Curso</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"], textarea, input[type="file"], input[type="url"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .aula, .questao {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        .aula h3, .questao h3 {
+            margin-top: 0;
+        }
+        .add-aula, .add-questao {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .add-aula:hover, .add-questao:hover {
+            background-color: #0056b3;
+        }
+        .alternativas {
+            margin-left: 20px;
+        }
+        .alternativas label {
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Formulário de Criação de Curso</h2>
+    <form action="#" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <!-- Título do Curso -->
+        <label for="titulo">Título do Curso:</label>
+        <input type="text" id="titulo" name="titulo" required>
+
+        <!-- Número de Aulas -->
+        <label for="numero_aulas">Número de Aulas:</label>
+        <input type="number" id="numero_aulas" name="numero_aulas" required>
+
+        <!-- Descrição do Curso -->
+        <label for="descricao_curso">Descrição do Curso:</label>
+        <textarea id="descricao_curso" name="descricao_curso" rows="4" required></textarea>
+
+        <!-- Imagem do Curso -->
+        <label for="imagem_curso">Imagem do Curso:</label>
+        <input type="file" id="imagem_curso" name="imagem_curso" accept="image/*" required>
+
+        <!-- Seção de Aulas -->
+        <h3>Aulas do Curso</h3>
+        <div id="aulas-container">
+            <!-- Aulas serão adicionadas aqui dinamicamente -->
+        </div>
+        <button type="button" class="add-aula" onclick="adicionarAula()">Adicionar Aula</button>
+
+        <!-- Seção de Questionário -->
+        <h3>Questionário do Curso</h3>
+        <div id="questionario-container">
+            <!-- Questões serão adicionadas aqui dinamicamente -->
+        </div>
+        <button type="button" class="add-questao" onclick="adicionarQuestao()">Adicionar Questão</button>
+
+        <!-- Botão de Envio -->
+        <input type="submit" value="Criar Curso">
+    </form>
+
+    <script>
+        let contadorAulas = 0;
+        let contadorQuestoes = 0;
+
+        function adicionarAula() {
+            if (contadorAulas >= 5) {
+                alert("Você pode adicionar no máximo 5 aulas.");
+                return;
+            }
+
+            contadorAulas++;
+
+            const container = document.getElementById("aulas-container");
+
+            const aulaDiv = document.createElement("div");
+            aulaDiv.classList.add("aula");
+
+            aulaDiv.innerHTML = `
+                <h3>Aula ${contadorAulas}</h3>
+                <label for="titulo_aula_${contadorAulas}">Título da Aula:</label>
+                <input type="text" id="titulo_aula_${contadorAulas}" name="titulo_aula_${contadorAulas}" required>
+
+                <label for="descricao_aula_${contadorAulas}">Descrição da Aula:</label>
+                <textarea id="descricao_aula_${contadorAulas}" name="descricao_aula_${contadorAulas}" rows="3" required></textarea>
+
+                <label for="url_aula_${contadorAulas}">URL da Aula:</label>
+                <input type="url" id="url_aula_${contadorAulas}" name="url_aula_${contadorAulas}" required>
+            `;
+
+            container.appendChild(aulaDiv);
+        }
+
+        function adicionarQuestao() {
+            if (contadorQuestoes >= 5) {
+                alert("Você pode adicionar no máximo 5 questões.");
+                return;
+            }
+
+            contadorQuestoes++;
+
+            const container = document.getElementById("questionario-container");
+
+            const questaoDiv = document.createElement("div");
+            questaoDiv.classList.add("questao");
+
+            questaoDiv.innerHTML = `
+                <h3>Questão ${contadorQuestoes}</h3>
+                <label for="enunciado_questao_${contadorQuestoes}">Enunciado da Questão:</label>
+                <textarea id="enunciado_questao_${contadorQuestoes}" name="enunciado_questao_${contadorQuestoes}" rows="3" required></textarea>
+
+                <div class="alternativas">
+                    <label>Alternativas:</label>
+                    <label for="alternativa_a_${contadorQuestoes}">
+                        <input type="radio" name="resposta_questao_${contadorQuestoes}" value="A" required> A)
+                        <input type="text" id="alternativa_a_${contadorQuestoes}" name="alternativa_a_${contadorQuestoes}" required>
+                    </label>
+                    <label for="alternativa_b_${contadorQuestoes}">
+                        <input type="radio" name="resposta_questao_${contadorQuestoes}" value="B" required> B)
+                        <input type="text" id="alternativa_b_${contadorQuestoes}" name="alternativa_b_${contadorQuestoes}" required>
+                    </label>
+                    <label for="alternativa_c_${contadorQuestoes}">
+                        <input type="radio" name="resposta_questao_${contadorQuestoes}" value="C" required> C)
+                        <input type="text" id="alternativa_c_${contadorQuestoes}" name="alternativa_c_${contadorQuestoes}" required>
+                    </label>
+                    <label for="alternativa_d_${contadorQuestoes}">
+                        <input type="radio" name="resposta_questao_${contadorQuestoes}" value="D" required> D)
+                        <input type="text" id="alternativa_d_${contadorQuestoes}" name="alternativa_d_${contadorQuestoes}" required>
+                    </label>
+                    <label for="alternativa_e_${contadorQuestoes}">
+                        <input type="radio" name="resposta_questao_${contadorQuestoes}" value="E" required> E)
+                        <input type="text" id="alternativa_E_${contadorQuestoes}" name="alternativa_E_${contadorQuestoes}" required>
+                    </label>
+                </div>
+            `;
+
+            container.appendChild(questaoDiv);
+        }
+    </script>
+
+</body>
+</html>

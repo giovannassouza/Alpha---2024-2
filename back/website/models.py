@@ -31,10 +31,9 @@ class CursosEmProgresso(db.Model):
 class Curso(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(150), unique=True)
-    descricao = db.Column(db.String(3600))
-    horas_estimado = db.Column(db.Integer)
-    texto_certificado = db.Column(db.String(3600))
-    questionario_id = db.Column(db.Integer, db.ForeignKey("questionario.id"))
+    descricao = db.Column(db.Text)
+    nAulas = db.Column(db.Integer)
+    image_URL = db.Column(db.String(150))
 
 class Questionario(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -51,17 +50,13 @@ class Ementa(db.Model):
     aula_id = db.Column(db.Integer, db.ForeignKey("aula.id"), primary_key=True)
     curso_id = db.Column(db.Integer, db.ForeignKey("curso.id"), primary_key=True)
 
-class Aula(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    titulo = db.Column(db.String(150))
 
-class VideoAula(db.Model):
+class Aula(db.Model):
+    curso_id = db.Column(db.Integer, db.ForeignKey("curso.id"))
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     url = db.Column(db.String(150))
-    minutos_duracao = db.Column(db.Integer)
-    segundos_duracao = db.Column(db.Integer)
     titulo = db.Column(db.String(150))
-    aula_id = db.Column(db.Integer, db.ForeignKey("aula.id"))
+    descricao = db.Column(db.Text)
 
 class AcervoDeQuestoes(db.Model):
     questionario_id = db.Column(db.Integer, db.ForeignKey("aula.id"), primary_key=True)
@@ -70,6 +65,7 @@ class AcervoDeQuestoes(db.Model):
 
 class Questao(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_curso = db.Column(db.Integer, db.ForeignKey("curso.id"))
     enunciado = db.Column(db.Text)
     alternativa_A = db.Column(db.Text)
     alternativa_B = db.Column(db.Text)
@@ -77,6 +73,7 @@ class Questao(db.Model):
     alternativa_D = db.Column(db.Text)
     alternativa_E = db.Column(db.Text)
     resposta_correta = db.Column(db.String(1))
+
 class RespostaAoQuestionario(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
     questionario_id = db.Column(db.Integer, db.ForeignKey("questionario.id"), primary_key=True)

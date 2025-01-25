@@ -5,6 +5,8 @@ from . import db
 from datetime import datetime
 from .json_responses import successful_response, error_response  # Import your standardized response functions
 
+utils = Blueprint('utils', __name__)
+
 def create_user(
     email: str,
     full_name: str,
@@ -115,6 +117,7 @@ def validate_cpf(cpf: str) -> bool:
 
     return cpf == cpf[:9] + str(first_digit) + str(second_digit)
 
+@utils.route("/utils/user_online_check")
 def user_online_check():
     """
     Verifies if the user is authenticated and ensures the presence of a CSRF token.

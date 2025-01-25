@@ -59,6 +59,7 @@ def create_app():
     from .certificate import certificate
     from .wtf_error import wtf_error
     from .account_management import account_management
+    from .utils import utils
     
     # Initialize OAuth
     oauth.init_app(app) # create authentication instance attached to app
@@ -79,6 +80,7 @@ def create_app():
     app.register_blueprint(certificate, url_prefix='/')
     app.register_blueprint(wtf_error, url_prefix='/')
     app.register_blueprint(account_management, url_prefix='/')
+    app.register_blueprint(utils, url_prefix='/')
     
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

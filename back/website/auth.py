@@ -4,7 +4,7 @@ from .models import *
 from . import oauth, db, google
 from datetime import datetime
 from .json_responses import successful_response, error_response
-from .utils import send_verification_email, generate_verification_code
+from .utils import send_verification_email, generate_verification_code, validate_cpf, create_user, user_online_check
 
 auth = Blueprint('auth', __name__)
 

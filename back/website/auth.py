@@ -4,6 +4,7 @@ from .models import *
 from . import oauth, db, google
 from datetime import datetime
 from .json_responses import successful_response, error_response  # Import your standardized response functions
+from .utils import validate_cpf, create_user, user_online_check
 
 auth = Blueprint('auth', __name__)
 
@@ -140,7 +141,7 @@ def sign_up():
         schema:
           type: object
           properties:
-            user:
+            user_email:
               type: string
               description: Registered user email.
       400:
@@ -201,7 +202,7 @@ def sign_up():
         
         login_user(user, remember=keep_logged_in)
         if current_user.is_authenticated:
-            return successful_response(description="Signed up successfully.", data={"user": current_user.email})
+            return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
         else:
             return error_response(description="Signed up but error logging in.", response=500)
     
@@ -222,243 +223,11 @@ def logout():
       401:
         description: Unauthorized access (user not logged in).
     """
-    if not current_user.is_authenticated:
-        return error_response(description="Unauthorized access.", response=401)
+    online_check = user_online_check()
+    if online_check['response'] != 200:
+      return online_check
     logout_user()
     return successful_response(description="Logged out successfully.")
-
-
-@auth.route('/account-info', methods=['POST', 'GET'])
-@login_required
-def update_account():
-    """
-    Update user account information.
-    ---
-    tags:
-      - Account Management
-    parameters:
-      - name: csrf_token
-        in: header
-        type: string
-        required: true
-        description: CSRF token for secure requests.
-      - name: full_name
-        in: formData
-        type: string
-        required: false
-        description: New full name for the account.
-      - name: email
-        in: formData
-        type: string
-        required: false
-        description: New email for the account.
-      - name: cpf
-        in: formData
-        type: string
-        required: false
-        description: New CPF (Brazilian ID number).
-      - name: data_nasc
-        in: formData
-        type: string
-        required: false
-        description: New birth date in YYYY-MM-DD format.
-      - name: cliente_tina
-        in: formData
-        type: boolean
-        required: false
-        description: Whether the user is a Tina client.
-      - name: old_password
-        in: formData
-        type: string
-        required: true
-        description: Current password for verification.
-      - name: new_password
-        in: formData
-        type: string
-        required: false
-        description: New password for the account.
-      - name: check_new_password
-        in: formData
-        type: string
-        required: false
-        description: Confirmation of the new password.
-    responses:
-      200:
-        description: Account successfully updated.
-        schema:
-          type: object
-          properties:
-            user:
-              type: string
-              description: Updated user email.
-      400:
-        description: Invalid input provided.
-      401:
-        description: Unauthorized access (user not logged in).
-      403:
-        description: Invalid CSRF token.
-      500:
-        description: Internal server error.
-    """
-    if request.method == 'POST':
-        csrf_token = request.headers.get('X-CSRFToken') or request.form.get('csrf_token')
-        if not csrf_token:
-            return error_response(description="Invalid CSRF token.", response=403)
-        full_name = request.form.get('full_name')
-        email = request.form.get('email')
-        cpf = request.form.get('cpf')
-        data_nasc = request.form.get('data_nasc')
-        cliente_tina = request.form.get('cliente_tina')
-        keep_logged_in = request.form.get('keep_logged_in')
-        
-        old_password = request.form.get('old_password')
-        new_password = request.form.get('new_password')
-        new_password_check = request.form.get('check_new_password')
-        
-        if current_user:
-            if full_name:
-                current_user.full_name = full_name
-            
-            if email:
-                current_user.email = email
-            
-            if cpf and validate_cpf(cpf):
-                current_user.cpf = cpf
-            
-            if data_nasc:
-                try:
-                    data_nasc = datetime.strptime(data_nasc, '%Y-%m-%d').date()
-                    if data_nasc < datetime.now().date():
-                        current_user.data_nasc = data_nasc
-                except ValueError:
-                    return error_response(description="Invalid date format. Use YYYY-MM-DD.", response=400)
-            
-            
-            if cliente_tina:
-                current_user.cliente_tina = cliente_tina
-            
-            if new_password:
-                if current_user.check_password(old_password):
-                    if new_password == new_password_check:
-                        current_user.set_password(new_password)
-            
-            db.session.commit()
-            login_user(current_user, remember=keep_logged_in)
-            return successful_response(description="Account updated successfully.", data={"user": current_user.email})
-        else:
-            return error_response(description="You are not logged in.", response=401)
-    
-    return render_template('account-info.html')
-
-def create_user(
-    email: str,
-    full_name: str,
-    cpf: str = None,
-    password: str = None,
-    data_nasc: datetime = None,
-    data_criacao: datetime = datetime.now(),
-    google_linked: bool = False,
-    cliente_tina: bool = False
-    ):
-    """
-    Create a new user in the database.
-    ---
-    tags:
-      - User Management
-    parameters:
-      - name: email
-        in: body
-        type: string
-        required: true
-        description: User email.
-      - name: full_name
-        in: body
-        type: string
-        required: true
-        description: Full name of the user.
-      - name: cpf
-        in: body
-        type: string
-        required: false
-        description: CPF of the user.
-      - name: password
-        in: body
-        type: string
-        required: false
-        description: Password of the user.
-      - name: data_nasc
-        in: body
-        type: string
-        required: false
-        description: Birth date of the user in YYYY-MM-DD format.
-      - name: cliente_tina
-        in: body
-        type: boolean
-        required: false
-        description: Whether the user is a Tina client.
-    responses:
-      201:
-        description: User successfully created.
-      400:
-        description: Invalid input.
-      500:
-        description: Database error occurred.
-    """
-    if cpf != None:
-        if not validate_cpf(cpf):
-            return 'Error. Invalid CPF.'
-    
-    new_user = User(
-        email = email,
-        cpf = cpf,
-        password = None,
-        full_name = full_name,
-        data_nasc = data_nasc,
-        data_criacao = data_criacao,
-        cliente_tina = 1 if cliente_tina else 0,
-        google_linked = google_linked
-    )
-    
-    if password:
-        new_user.set_password(password)
-    
-    db.session.add(new_user)
-    db.session.commit()
-    
-    return new_user
-
-def validate_cpf(cpf: str) -> bool:
-    """
-    Validate a CPF number.
-    ---
-    tags:
-      - Validation
-    parameters:
-      - name: cpf
-        in: body
-        type: string
-        required: true
-        description: CPF number to validate.
-    responses:
-      200:
-        description: CPF is valid.
-      400:
-        description: CPF is invalid.
-    """
-    cpf = ''.join(filter(str.isdigit, cpf))
-    
-    if len(cpf) != 11 or cpf == cpf[0] * 11:
-        return False
-    
-    def calculate_digit(cpf_part):
-        weight = len(cpf_part) + 1
-        total = sum(int(digit) * (weight - idx) for idx, digit in enumerate(cpf_part))
-        remainder = total % 11
-        return 0 if remainder < 2 else 11 - remainder
-    first_digit = calculate_digit(cpf[:9])
-    second_digit = calculate_digit(cpf[:9] + str(first_digit))
-
-    return cpf == cpf[:9] + str(first_digit) + str(second_digit)
 
 
 '''

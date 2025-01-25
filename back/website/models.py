@@ -15,6 +15,7 @@ class User(db.Model, UserMixin):
     data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
     cliente_tina = db.Column(db.Integer, nullable=False)
     google_linked = db.Column(db.Integer, nullable=False, default=0)
+    is_active = db.Column(db.Integer, nullable=False, default=1)
     
     def set_password(self, password: str):
         self.password = generate_password_hash(password)

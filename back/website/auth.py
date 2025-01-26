@@ -274,7 +274,7 @@ def logout():
     return successful_response(description="Logged out successfully.")
 
 
-@auth.route('/authenticate/send-email', methods=['GET'])
+@auth.route('/authenticate/send-email', methods=['POST'])
 @login_required
 def send_authentication_code_email():
   """
@@ -284,7 +284,7 @@ def send_authentication_code_email():
   tags:
     - Authentication
   summary: Send email authentication code
-  description: This endpoint sends a unique email authentication code to the current user's registered email address. The user must be logged in, and their email must not already be authenticated.
+  description: This endpoint sends a unique email authentication code to the provided email address. A user with the email must exist, and their email must not already be authenticated.
   responses:
     200:
       description: Authentication code sent successfully.
@@ -331,19 +331,28 @@ def send_authentication_code_email():
             type: integer
             example: 500
   """
-  online_check = user_online_check()
-  if online_check['response'] != 200:
-    return online_check
-  if current_user.email_authenticated:
+  email = request.form.get("email")
+  if not email:
+    return error_response(description='Email not provided.', response=400)
+  
+  try:
+    user = User.query.filter_by(email=email).first()
+  except Exception as e:
+    return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+  if not user:
+    return error_response(description="There isn't a user with this email.", response=400)
+  
+  if user.email_authenticated:
     return error_response(description='Email already authenticated.', response=401)
   
   authentication_code = generate_authentication_code()
-  response = send_authentication_email(current_user.email, authentication_code)
+  response = send_authentication_email(user.email, authentication_code)
   if response['response'] != 200:
     return response
-  current_user.email_authentication_code = authentication_code
+  
+  user.email_authentication_code = authentication_code
   db.session.commit()
-  login_user(current_user)
+  session['authentication_email'] = email
   return successful_response(description=f'Authentication code sent to your email {current_user.email[:4]+'***'+current_user.email[-9:]}. Check SPAM.', response=200)
 
 @auth.route('/authenticate/email-auth-code', methods=['POST'])
@@ -356,7 +365,7 @@ def authenticate_email_code():
   tags:
     - Authentication
   summary: Authenticate email using a authentication code
-  description: This endpoint verifies the email authentication code provided by the user. The user must be logged in, and their email must not already be authenticated. If the code matches, the user's email will be authenticated.
+  description: This endpoint verifies the email authentication code provided by the user. The user must have requested the authentication code in the same session and their email must not already be authenticated. If the code matches, the user's email will be authenticated.
   consumes:
     - application/x-www-form-urlencoded
   parameters:
@@ -411,20 +420,26 @@ def authenticate_email_code():
             type: integer
             example: 403
   """
-  online_check = user_online_check()
-  if online_check['response'] != 200:
-    return online_check
-  if current_user.email_authenticated:
+  email = session['authentication_email']
+  session.pop('authentication_email', None)
+  try:
+    user = User.query.filter_by(email=email).first()
+  except Exception as e:
+    return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+  if not user:
+    return error_response(description="There isn't a user with this email.", response=400)
+  
+  if user.email_authenticated:
     return error_response(description='Email already authenticated.', response=401)
   
   provided_auth_code = request.form.get('auth-code')
   if not provided_auth_code:
     return error_response(description='Authentication code not provided.', response=400)
   
-  if provided_auth_code != current_user.email_authentication_code:
+  if provided_auth_code != user.email_authentication_code:
     return error_response('Invalid authentication code. Try again. Check you email (and SPAM).', response=400)
-  current_user.email_authenticated = False
-  current_user.email_authentication_code = None
+  user.email_authenticated = False
+  user.email_authentication_code = None
   db.session.commit()
   return successful_response('Email authenticated successfully.', response=200)
 

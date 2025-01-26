@@ -198,3 +198,13 @@ def update_account():
             return error_response(description="You are not logged in.", response=401)
     
     return render_template('account-info.html')
+
+
+@account_management.route('/account/lost', methods=['GET'])
+@login_required
+def lost_account():
+  online_check = user_online_check()
+  if online_check['response'] != 200:
+    return online_check
+  if not current_user.email_authenticated:
+    return error_response(description='Email must be authenticated first.', response=401)

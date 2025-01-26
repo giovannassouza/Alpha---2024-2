@@ -268,7 +268,7 @@ def logout():
         description: Unauthorized access (user not logged in).
     """
     online_check = user_online_check()
-    if online_check['response'] != 200:
+    if online_check.status_code != 200:
       return online_check
     logout_user()
     return successful_response(description="Logged out successfully.")
@@ -353,7 +353,7 @@ def send_authentication_code_email():
   user.email_authentication_code = authentication_code
   db.session.commit()
   session['authentication_email'] = email
-  return successful_response(description=f'Authentication code sent to your email {current_user.email[:4]+'***'+current_user.email[-9:]}. Check SPAM.', response=200)
+  return successful_response(description=f'Authentication code sent to your email {current_user.email[:4]+"***"+current_user.email[-9:]}. Check SPAM.', response=200)
 
 @auth.route('/authenticate/email-auth-code', methods=['POST'])
 @login_required

@@ -267,6 +267,15 @@ def logout():
     return successful_response(description="Logged out successfully.")
 
 
+@auth.route('/authenticate/email', methods=['POST'])
+@login_required
+def authenticate_email():
+  online_check = user_online_check()
+  if online_check['response'] != 200:
+    return online_check
+  
+
+
 '''
 @auth.route('/login/google') # Login for google
 def login_google():

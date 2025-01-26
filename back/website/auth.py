@@ -8,6 +8,7 @@ from .utils import validate_cpf, create_user, user_online_check, send_authentica
 
 auth = Blueprint('auth', __name__)
 
+
 @auth.route('/login/authenticate', methods=['POST', 'GET'])
 def login():
     """
@@ -198,7 +199,7 @@ def sign_up():
         return error_response(description="Email already registered.", response=409) # Then, don't allow signup
       # If there is a user but they aren't active
       check_credentials = check_credentials(email, password, check_password, birth_date, cpf) # Check credentials
-      if check_credentials['response'] != 200:
+      if check_credentials.status_code != 200:
         return check_credentials
       # Proceed with the signup
       user.full_name = full_name
@@ -223,7 +224,7 @@ def sign_up():
         return error_response(description="CPF already registered.", response=409) # Then, don't allow signup
       # If there is a user but they aren't active
       check_credentials = check_credentials(email, password, check_password, birth_date, cpf) # Check credentials
-      if check_credentials['response'] != 200:
+      if check_credentials.status_code != 200:
         return check_credentials
       # Proceed with the signup
       user.full_name = full_name
@@ -347,7 +348,7 @@ def send_authentication_code_email():
   
   authentication_code = generate_authentication_code()
   response = send_authentication_email(user.email, authentication_code)
-  if response['response'] != 200:
+  if response.status_code != 200:
     return response
   
   user.email_authentication_code = authentication_code

@@ -4,7 +4,7 @@ from .models import *
 from . import oauth, db, google
 from datetime import datetime
 from .json_responses import successful_response, error_response  # Import your standardized response functions
-from .utils import validate_cpf, create_user, user_online_check
+from .utils import validate_cpf, create_user, user_online_check, send_authentication_email, generate_authentication_code
 
 auth = Blueprint('auth', __name__)
 
@@ -92,6 +92,13 @@ def login():
 def sign_up():
     """
     Register a new user account.
+    
+    This endpoint allows users to register for a new account by providing 
+    the required details such as email, password, and personal information. 
+    It performs input validation and checks for duplicate accounts based on 
+    email and CPF. If the registration is successful, the user is logged in 
+    automatically.
+    
     ---
     tags:
       - Authentication
@@ -110,7 +117,7 @@ def sign_up():
         in: formData
         type: string
         required: true
-        description: Password confirmation.
+        description: Password confirmation (must match the password).
       - name: full_name
         in: formData
         type: string
@@ -146,15 +153,15 @@ def sign_up():
               type: string
               description: Registered user email.
       400:
-        description: Invalid input provided (e.g., invalid email, mismatched passwords).
+        description: Invalid input provided (e.g., invalid email, mismatched passwords, or invalid birth date/CPF).
       401:
-        description: Unauthorized access.
+        description: Unauthorized access. Occurs if a logged-in user attempts to access the sign-up page.
       403:
-        description: Invalid CSRF token.
+        description: Invalid CSRF token. Occurs if CSRF protection validation fails.
       409:
-        description: Email or CPF already registered.
+        description: Conflict error due to duplicate email or CPF already registered.
       500:
-        description: Internal server error.
+        description: Internal server error. Occurs due to database errors or unexpected server issues.
     """
     def check_credentials(email: str, password: str, check_password: str, birth_date: datetime, cpf: str):
       if '@' not in email:
@@ -267,13 +274,159 @@ def logout():
     return successful_response(description="Logged out successfully.")
 
 
-@auth.route('/authenticate/email', methods=['POST'])
+@auth.route('/authenticate/send-email', methods=['GET'])
 @login_required
-def authenticate_email():
+def send_authentication_code_email():
+  """
+  Sends an authentication code to the user's registered email.
+  
+  ---
+  tags:
+    - Authentication
+  summary: Send email authentication code
+  description: This endpoint sends a unique email authentication code to the current user's registered email address. The user must be logged in, and their email must not already be authenticated.
+  responses:
+    200:
+      description: Authentication code sent successfully.
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: "Authentication code sent to your email ****@domain.com. Check SPAM."
+          response:
+            type: integer
+            example: 200
+    401:
+      description: Email already authenticated or unauthorized access.
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: "Email already authenticated."
+          response:
+            type: integer
+            example: 401
+    403:
+      description: Unauthorized access. User is not authenticated.
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: "Unauthorized access."
+          response:
+            type: integer
+            example: 403
+    500:
+      description: Error sending the email.
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: "Failed to send the authentication code email."
+          response:
+            type: integer
+            example: 500
+  """
   online_check = user_online_check()
   if online_check['response'] != 200:
     return online_check
+  if current_user.email_authenticated:
+    return error_response(description='Email already authenticated.', response=401)
   
+  authentication_code = generate_authentication_code()
+  response = send_authentication_email(current_user.email, authentication_code)
+  if response['response'] != 200:
+    return response
+  current_user.email_authentication_code = authentication_code
+  db.session.commit()
+  login_user(current_user)
+  return successful_response(description=f'Authentication code sent to your email {current_user.email[:4]+'***'+current_user.email[-9:]}. Check SPAM.', response=200)
+
+@auth.route('/authenticate/email-auth-code', methods=['POST'])
+@login_required
+def authenticate_email_code():
+  """
+  Verifies the provided email authentication code.
+  
+  ---
+  tags:
+    - Authentication
+  summary: Authenticate email using a authentication code
+  description: This endpoint verifies the email authentication code provided by the user. The user must be logged in, and their email must not already be authenticated. If the code matches, the user's email will be authenticated.
+  consumes:
+    - application/x-www-form-urlencoded
+  parameters:
+    - name: auth-code
+      in: formData
+      type: string
+      required: true
+      description: The email authentication code sent to the user's registered email.
+  responses:
+    200:
+      description: Email authenticated successfully.
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: "Email authenticated successfully."
+          response:
+            type: integer
+            example: 200
+    400:
+      description: Invalid or missing authentication code.
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: "Authentication code not provided." or "Invalid authentication code. Try again. Check your email (and SPAM)."
+          response:
+            type: integer
+            example: 400
+    401:
+      description: Email already authenticated or unauthorized access.
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: "Email already authenticated."
+          response:
+            type: integer
+            example: 401
+    403:
+      description: Unauthorized access. User is not authenticated.
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: "Unauthorized access."
+          response:
+            type: integer
+            example: 403
+  """
+  online_check = user_online_check()
+  if online_check['response'] != 200:
+    return online_check
+  if current_user.email_authenticated:
+    return error_response(description='Email already authenticated.', response=401)
+  
+  provided_auth_code = request.form.get('auth-code')
+  if not provided_auth_code:
+    return error_response(description='Authentication code not provided.', response=400)
+  
+  if provided_auth_code != current_user.email_authentication_code:
+    return error_response('Invalid authentication code. Try again. Check you email (and SPAM).', response=400)
+  current_user.email_authenticated = False
+  current_user.email_authentication_code = None
+  db.session.commit()
+  return successful_response('Email authenticated successfully.', response=200)
 
 
 '''

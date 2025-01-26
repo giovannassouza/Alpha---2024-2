@@ -1,9 +1,9 @@
-from flask import Blueprint, url_for, redirect, session, request, render_template
+from flask import Blueprint, session, request, render_template
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import oauth, db, google
 from datetime import datetime
-from .json_responses import successful_response, error_response  # Import your standardized response functions
+from .json_responses import successful_response, error_response
 from .utils import validate_cpf, create_user, user_online_check, send_authentication_email, generate_authentication_code
 
 auth = Blueprint('auth', __name__)

@@ -67,7 +67,7 @@ def deactivate_account():
               example: 401
     """
     online_check = user_online_check()
-    if online_check['response'] != 200:
+    if online_check.status_code != 200:
         return online_check
     confirm = request.form.get('confirm')
     if confirm != "DELETE":
@@ -151,7 +151,7 @@ def update_account():
     """
     if request.method == 'POST':
         online_check = user_online_check()
-        if online_check['response'] != 200:
+        if online_check.status_code != 200:
             return online_check
         full_name = request.form.get('full_name')
         email = request.form.get('email')
@@ -204,7 +204,7 @@ def update_account():
 @login_required
 def lost_account():
   online_check = user_online_check()
-  if online_check['response'] != 200:
+  if online_check.status_code != 200:
     return online_check
   if not current_user.email_authenticated:
     return error_response(description='Email must be authenticated first.', response=401)

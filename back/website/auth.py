@@ -72,17 +72,18 @@ def login():
         except Exception as e:
             return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
         
-        if user:
-            if user.check_password(user_password):
-                login_user(user, remember=keep_logged_in)
-                if current_user.is_authenticated:
-                    return successful_response(description="Logged in successfully.", data={"user": current_user.email})
-                else:
-                    return error_response(description="Error logging in.", response=500)
-            else:
-                return error_response(description="Incorrect password. Check your credentials.", response=401)
-        else:
-            return error_response(description="User not found. Check your credentials.", response=404)
+        if (not user) or (not user.is_active):
+          return error_response(description="User not found. Check your credentials.", response=404)
+        
+        if not user.check_password(user_password):
+          return error_response(description="Incorrect password. Check your credentials.", response=401)
+        
+        login_user(user, remember=keep_logged_in)
+        
+        if not current_user.is_authenticated:
+          return error_response(description="Error logging in.", response=500)
+        
+        return successful_response(description="Logged in successfully.", data={"user": current_user.email})
     
     return render_template('login.html')
 
@@ -155,59 +156,95 @@ def sign_up():
       500:
         description: Internal server error.
     """
-    if current_user.is_authenticated:
-        return error_response(description="Unauthorized access.", response=401)
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        check_password = request.form.get('password_check')
-        full_name = request.form.get('full_name')
-        birth_date = datetime.strptime(request.form.get('birth_date'), '%Y-%m-%d')
-        cpf = request.form.get('cpf')
-        cliente_tina = request.form.get('cliente_tina')
-        keep_logged_in = request.form.get('keep_logged_in')
-        
-        try:
-            if User.query.filter_by(email=email).count() >= 1:
-                return error_response(description="Email already registered.", response=409)
-        except Exception as e:
-            return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
-        
-        if '@' not in email:
-            return error_response(description="Invalid email.", response=400)
-        
-        if password != check_password:
-            return error_response(description="Passwords do not match.", response=400)
-        
-        if birth_date >= datetime.now():
-            return error_response(description="Invalid birth date.", response=400)
-        
-        if not validate_cpf(cpf):
-            return error_response(description="Invalid CPF.", response=400)
-        
-        try:
-            if User.query.filter_by(cpf=cpf).count() >= 1:
-                return error_response(description="CPF already registered.", response=409)
-        except Exception as e:
-            return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
-        
-        user = create_user(
-            email=email,
-            full_name=full_name,
-            cpf=cpf,
-            password=password,
-            data_nasc=birth_date,
-            cliente_tina=cliente_tina
-        )
-        
-        login_user(user, remember=keep_logged_in)
-        if current_user.is_authenticated:
-            return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
-        else:
-            return error_response(description="Signed up but error logging in.", response=500)
+    def check_credentials(email: str, password: str, check_password: str, birth_date: datetime, cpf: str):
+      if '@' not in email:
+        return error_response(description="Invalid email.", response=400)
+      if password != check_password:
+        return error_response(description="Passwords do not match.", response=400)
+      if birth_date >= datetime.now():
+        return error_response(description="Invalid birth date.", response=400)
+      if not validate_cpf(cpf):
+        return error_response(description="Invalid CPF.", response=400)
+      return successful_response(description="Credentials successfully verified.", response=200)
     
-    return render_template('sign-up.html')
-
+    if current_user.is_authenticated:
+      return error_response(description="Unauthorized access.", response=401)
+    
+    if request.method == 'GET':
+      return render_template('sign-up.html')
+    
+    email = request.form.get('email')
+    password = request.form.get('password')
+    check_password = request.form.get('password_check')
+    full_name = request.form.get('full_name')
+    birth_date = datetime.strptime(request.form.get('birth_date'), '%Y-%m-%d')
+    cpf = request.form.get('cpf')
+    cliente_tina = request.form.get('cliente_tina')
+    keep_logged_in = request.form.get('keep_logged_in')
+    
+    try:
+      user = User.query.filter_by(email=email).first() # Try finding user with email
+    except Exception as e:
+      return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+    if user: # If there is a user
+      if user.is_active: # And if it is active
+        return error_response(description="Email already registered.", response=409) # Then, don't allow signup
+      # If there is a user but they aren't active
+      check_credentials = check_credentials(email, password, check_password, birth_date, cpf) # Check credentials
+      if check_credentials['response'] != 200:
+        return check_credentials
+      # Proceed with the signup
+      user.full_name = full_name
+      user.email = email
+      user.cpf = cpf
+      user.data_nasc = birth_date
+      user.cliente_tina = cliente_tina
+      user.set_password(password)
+      db.session.commit()
+      login_user(user, remember=keep_logged_in)
+      if current_user.is_authenticated:
+        return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
+      return error_response(description="Signed up but error logging in.", response=500)
+    
+    # Repeat the same process with cpf
+    try:
+      user = User.query.filter_by(cpf=cpf).first() # Try finding user with cpf
+    except Exception as e:
+      return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+    if user: # If there is a user
+      if user.is_active: # And if it is active
+        return error_response(description="CPF already registered.", response=409) # Then, don't allow signup
+      # If there is a user but they aren't active
+      check_credentials = check_credentials(email, password, check_password, birth_date, cpf) # Check credentials
+      if check_credentials['response'] != 200:
+        return check_credentials
+      # Proceed with the signup
+      user.full_name = full_name
+      user.email = email
+      user.cpf = cpf
+      user.data_nasc = birth_date
+      user.cliente_tina = cliente_tina
+      user.set_password(password)
+      db.session.commit()
+      login_user(user, remember=keep_logged_in)
+      if current_user.is_authenticated:
+        return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
+      return error_response(description="Signed up but error logging in.", response=500)
+    
+    # If there isn't a user
+    user = create_user( # Create one
+        email=email,
+        full_name=full_name,
+        cpf=cpf,
+        password=password,
+        data_nasc=birth_date,
+        cliente_tina=cliente_tina
+    )
+    
+    login_user(user, remember=keep_logged_in)
+    if current_user.is_authenticated:
+      return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
+    return error_response(description="Signed up but error logging in.", response=500)
 
 @auth.route('/logout', methods=['POST', 'GET'])
 @login_required

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, Flask, jsonify, render_template, request, session, redirect, url_for
 from flask_login import login_required, current_user
-from .models import Assinaturas
+from website.auth import validate_signature
 from website.models import *
 from .json_responses import successful_response, error_response
 from .payment_api import create_payment_eternal, create_payment_anual, create_payment_monthly
@@ -42,6 +42,16 @@ def payment_checkout():
       500:
         description: Internal server error.
     """
+    # Código para saber se o user ja tem assinaturas
+    user_id = current_user.get_id()
+    try:
+      user = User.query.filter_by(id=user_id).first()
+      validate_signature(user=user)
+      if user.assinante:
+          return error_response(description="Unauthorized access.", response=401, error_details={"exception": "User already has a current subscription."})
+    except Exception as e:
+        return error_response(description="Couldn't access database", response=500)
+    
     link_mensal = create_payment_monthly()
     link_anual = create_payment_anual()
     link_eterno = create_payment_eternal()

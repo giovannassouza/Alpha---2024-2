@@ -394,7 +394,7 @@ def authenticate_email_code():
         properties:
           description:
             type: string
-            example: "Authentication code not provided." or "Invalid authentication code. Try again. Check your email (and SPAM)."
+            example: "Authentication code not provided."
           response:
             type: integer
             example: 400

@@ -9,18 +9,115 @@ import random
 
 account_management = Blueprint('account_management', __name__)
 
+
 @account_management.route('/account/call', methods=["GET"])
 @login_required
 def call_user():
-  online_check = user_online_check()
-  if online_check.status_code != 200:
-    return online_check
-  return successful_response(description='User data collected successfully.', response=200,
-                            data={
-                              'name': current_user.full_name,
-                              'email': current_user.email,
-                              'cpf': current_user.cpf
-                            })
+    """
+    Retrieve the current user's account information.
+
+    This endpoint returns the logged-in user's details, including their full name, 
+    email, and CPF. It ensures the user is online before retrieving the data.
+
+    ---
+    tags:
+      - Account Management
+    responses:
+      200:
+        description: Successfully retrieved user information.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Full name of the user.
+                email:
+                  type: string
+                  description: Email address of the user.
+                cpf:
+                  type: string
+                  description: CPF (Brazilian ID number) of the user.
+      401:
+        description: User is not logged in.
+      500:
+        description: Internal server error due to an issue with the online check.
+    """
+    online_check = user_online_check()
+    if online_check.status_code != 200:
+        return online_check
+    return successful_response(
+        description='User data collected successfully.',
+        response=200,
+        data={
+            'name': current_user.full_name,
+            'email': current_user.email,
+            'cpf': current_user.cpf
+        }
+    )
+
+
+
+@account_management.route('/account/lost', methods=['POST'])
+@login_required
+def lost_account():
+    """
+    Handle account recovery by generating and sending a new password.
+
+    This endpoint allows users to recover their account by generating a 
+    new temporary password and sending it to their registered email address. 
+    Only authenticated users with a verified email can use this functionality.
+
+    ---
+    tags:
+      - Account Management
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: Email address of the user requesting password recovery.
+                example: "user@example.com"
+    responses:
+      200:
+        description: New password sent to the user's email inbox.
+      401:
+        description: Email must be authenticated before password recovery.
+      404:
+        description: User with the provided email not found.
+      500:
+        description: Internal server error, such as database issues or email-sending failure.
+    """
+    email = request.form.get("email")
+    try:
+        user = User.query.filter_by(email=email)
+    except Exception as e:
+        return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+    
+    if not current_user.email_authenticated:
+        return error_response(description='Email must be authenticated first.', response=401)
+    
+    # Generate a new temporary password
+    new_password = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+    user.set_password(password=new_password)
+    
+    # Send email with the new password
+    response = send_email(
+        recipient=email,
+        subject="New password for Tina: Gestão de Cantinas",
+        message=f"Use this password to access your account.\n"
+                f"Remember to change it as soon as possible.\n\nYour password is '{new_password}'"
+    )
+    if response.status_code != 200:
+        return response
+    return successful_response(description="New password sent to user's email inbox.", response=200)
+
+
 
 @account_management.route("/account/deactivate", methods=['POST'])
 def deactivate_account():
@@ -212,30 +309,3 @@ def update_account():
             return error_response(description="You are not logged in.", response=401)
     
     return render_template('account-info.html')
-
-
-@account_management.route('/account/lost', methods=['GET'])
-@login_required
-def lost_account():
-  email = request.form.get("email")
-  try:
-    user = User.query.filter_by(email=email)
-  except Exception as e:
-    return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
-  
-  if not current_user.email_authenticated:
-    return error_response(description='Email must be authenticated first.', response=401)
-  
-  new_password: str
-  for i in range(10):
-    new_password != str(random.randint(0,9))
-  user.set_password(password=new_password)
-  
-  response = send_email(
-    recipient=email,
-    subject="New password for Tina: Gestão de Cantinas",
-    message=f"Use this password to access your account.\nRemember to change it as soon as possible.\n\n Your password is '{new_password}'"
-    )
-  if response.status_code != 200:
-    return response
-  return successful_response(description="New password sent to user's email inbox.", response=200)

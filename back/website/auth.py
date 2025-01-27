@@ -444,6 +444,37 @@ def authenticate_email_code():
   db.session.commit()
   return successful_response('Email authenticated successfully.', response=200)
 
+def validate_signature(user: User):
+    """
+    Validate user subscription.
+    ---
+    tags:
+      - Signature
+    parameters:
+      - name: user
+        in: body
+        type: User
+        required: true
+        description: Logged in user.
+    responses:
+      200:
+        description: subscription succesfully validated.
+      400:
+        description: Expired subscription.
+      401:
+        description: Couldn't find subscription in database.
+    """
+
+    try:
+        signature = Assinaturas.query.filter_by(user_id= user.id).first()
+        user.assinante = 1
+        if signature.fim < datetime.now():
+            user.assinante = False
+            return error_response(description="Expired subscription.", response=400)
+        return successful_response(description="Subscription successfully validated.", data={"fim_assinatura": signature.fim})
+    except Exception as e:
+        return error_response(description="Couldn't find subscription in database.", response=401, error_details={"Exception": str(e)})
+
 
 '''
 @auth.route('/login/google') # Login for google

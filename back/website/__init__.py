@@ -9,7 +9,7 @@ from flask_login import LoginManager
 from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect
 
-
+app_url = "127.0.0.1:5000"
 db = SQLAlchemy()
 oauth = OAuth()
 google = oauth.register(

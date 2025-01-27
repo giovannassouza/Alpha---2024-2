@@ -2,6 +2,8 @@ import os
 from flask import Blueprint, Flask, jsonify, render_template, send_file, url_for
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
+
+from website.json_responses import *
 from .certificate_api import gerar_certificado_pdf
 from .models import *
 from website.models import *
@@ -11,6 +13,33 @@ certificate = Blueprint('certificate', __name__)
 @certificate.route('/class/certificate', methods=['GET'])
 @login_required
 def get_certificate():
+    """
+    Search for finished classes and make certificates.
+    ---
+    tags:
+      - Certificates
+    parameters:
+      - name: current_user
+        in: formData
+        type: User
+        required: true
+        description: Logged user to search for classes.
+    responses:
+      200:
+        description: Successfully generated certificate.
+        schema:
+          type: object
+          properties:
+            download_url:
+              type: dict
+              description: Dictionary with certificates URLs to download.
+    400:
+        description: Could not generate certificate.
+    404:
+        description: Could not find finished classes.
+    500:
+        description: Internal server error.
+    """
     try:
         user_id = current_user.get_id()
 
@@ -34,14 +63,15 @@ def get_certificate():
                     # Adicionar URL de download à lista
                     download_url = url_for('certificate.download_certificate', filename=filename)
                     download_urls.append({'curso': curso.nome, 'url': download_url})
-
-        return jsonify(download_urls)
+        
+        if len(download_urls) ==0:
+             return error_response(description="Could not find finished classes", response=404)
+        else:
+            return successful_response(description="Succesfully accessed the certificates url.", data={"download_url": download_urls})
 
     except Exception as e:
         # e holds description of the error
-        error_text = "<p>The error:<br>" + str(e) + "</p>"
-        hed = '<h1>Something is broken.</h1>'
-        return hed + error_text
+        return error_response(description="Couldn't generate certificate.", error_details={"exception": str(e)})
     
 
 @certificate.route('/download_certificate/<filename>')

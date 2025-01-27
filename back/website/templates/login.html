@@ -11,6 +11,7 @@
         <h1>Login</h1>
     </header>
     <main>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <form action="{{ url_for('auth.login') }}" method="POST">
             <div>
                 <label for="id_method">Email ou CPF:</label>

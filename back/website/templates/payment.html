@@ -4,29 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Pagamento</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Opções de Pagamento</h1>
-        <nav>
-            <ul>
-                <li><a href="home.html">Home</a></li>
-                <li><a href="{{ url_for('payment.payment_checkout') }}">Pagamento</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section>
-            <h2>Selecione uma Opção de Pagamento</h2>
-            <a href={{link_mensal}}>Acesso por um mês</a>
-            <a href={{link_anual}}>Acesso por um ano</a>
-            <a href={{link_eterno}}>Acesso vitalício</a>
-
-        </section>
-    </main>
-    <footer>
-        <p>© 2024 Página de Teste de Pagamento</p>
-    </footer>
+    <h1>Selecione um Plano</h1>
+    <form action="{{ url_for('payment.payment_checkout') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <select name="choosen_preference" required>
+            <option value="">Selecione um plano</option>
+            <option value="0">Acesso por um mês</option>
+            <option value="1">Acesso por um ano</option>
+            <option value="2">Acesso vitalício</option>
+        </select>
+        <button type="submit">Continuar para o Pagamento</button>
+    </form>
 </body>
-
+</html>

@@ -3,12 +3,13 @@ import string
 import mailtrap as mt
 from .api_key import MAILTRAP_API_KEY
 from .json_responses import *
-from flask import Blueprint, request
+from flask import Blueprint, request, make_response, session
 from flask_login import current_user
 from .models import *
 from . import db
 from datetime import datetime
 from .json_responses import successful_response, error_response
+from flask_wtf.csrf import generate_csrf
 
 utils = Blueprint('utils', __name__)
 
@@ -251,6 +252,23 @@ def validate_cpf(cpf: str) -> bool:
     second_digit = calculate_digit(cpf[:9] + str(first_digit))
 
     return cpf == cpf[:9] + str(first_digit) + str(second_digit)
+
+@utils.after_request
+def index():
+  resp = make_response("")
+  resp.set_cookie('csrf_token', generate_csrf(), domain=request.url_rule)
+  return resp
+
+@utils.route("/utils/x-csrf-token")
+def get_csfr_token():
+  token = request.cookies.get('csrf-token')
+  if token:
+    return successful_response(
+      description='X-CSRF Token fetched successfully.', 
+      response=200, 
+      data={'X-CSRF-TOKEN': token}
+    )
+  return error_response(description="X-CSRF Token not found.", response=400)
 
 @utils.route("/utils/user_online_check")
 def user_online_check():

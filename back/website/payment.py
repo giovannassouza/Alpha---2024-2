@@ -42,7 +42,7 @@ def payment_checkout():
       500:
         description: Internal server error.
     """
-    # Código para saber se o user ja tem assinaturas
+    # Código para saber se o user ja tem assinatura vigente
     user_id = current_user.get_id()
     try:
       user = User.query.filter_by(id=user_id).first()
@@ -141,6 +141,7 @@ def payment_done():
 
 
 @payment.route('/payment_denied')
+@login_required
 def payment_denied():
     """
     Signature payment denied.
@@ -155,6 +156,16 @@ def payment_denied():
     """
     return error_response(description="Payment not approved.", response=401)
 
+@payment.route('/signature_manager')
+@login_required
+def signature_manager():
+    user_id = current_user.get_id()
+    try:
+        subscription = Assinaturas.query.filter_by(user_id=user_id).first()
+        return successful_response(description="Succesfully accessed active subscription.", 
+                                   data={"data_inicio": subscription.inicio, "data_fim": subscription.fim, "tipo_assinatura": subscription.TipoAssinatura})
+    except Exception as e:
+        return error_response(description="Could not find active subscription", error_details={"exception": str(e)})
 
 def get_days_signature(preference: int):
     """

@@ -484,7 +484,7 @@ def validate_signature(user: User):
 
     try:
         signature = Assinaturas.query.filter_by(user_id= user.id).first()
-        user.assinante = True
+        user.assinante = 1
         if signature.fim < datetime.now():
             user.assinante = False
             return error_response(description="Expired subscription.", response=400)

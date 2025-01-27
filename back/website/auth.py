@@ -439,7 +439,7 @@ def authenticate_email_code():
   
   if provided_auth_code != user.email_authentication_code:
     return error_response('Invalid authentication code. Try again. Check you email (and SPAM).', response=400)
-  user.email_authenticated = False
+  user.email_authenticated = True
   user.email_authentication_code = None
   db.session.commit()
   return successful_response('Email authenticated successfully.', response=200)

@@ -13,3 +13,4 @@ back/website/api_key.py
 /back/website/__pycache__
 *.pdf
 /back/website/__pycache__
+*.pyc

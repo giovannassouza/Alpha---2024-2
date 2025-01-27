@@ -16,6 +16,8 @@ class User(db.Model, UserMixin):
     cliente_tina = db.Column(db.Integer, nullable=False)
     google_linked = db.Column(db.Integer, nullable=False, default=0)
     is_active = db.Column(db.Integer, nullable=False, default=1)
+    email_authenticated = db.Column(db.Integer, default=0)
+    email_authentication_code = db.Column(db.String(7), nullable=True)
     
     def set_password(self, password: str):
         self.password = generate_password_hash(password)

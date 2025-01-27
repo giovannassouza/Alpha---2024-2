@@ -12,12 +12,12 @@ from .json_responses import successful_response, error_response
 
 utils = Blueprint('utils', __name__)
 
-# Utility function to generate a random verification code
-def generate_verification_code(length=6):
+# Utility function to generate a random authentication code
+def generate_authentication_code(length=6):
     """
-    Generate a random verification code.
+    Generate a random authentication code.
 
-    This function generates a random verification code of a specified length (default is 6).
+    This function generates a random authentication code of a specified length (default is 6).
 
     ---
     tags:
@@ -27,10 +27,10 @@ def generate_verification_code(length=6):
         in: query
         type: integer
         required: false
-        description: The length of the verification code. Default is 6.
+        description: The length of the authentication code. Default is 6.
     responses:
       200:
-        description: A random verification code.
+        description: A random authentication code.
         schema:
           type: string
           example: "123456"
@@ -89,7 +89,7 @@ def send_email(recipient: str, subject: str, message: str):
             to=[mt.Address(email=recipient)],
             subject=subject,
             text=message,
-            category="Email Verification",
+            category="Email authentication",
         )
         
         # Send the email
@@ -103,13 +103,13 @@ def send_email(recipient: str, subject: str, message: str):
     except Exception as e:
         return error_response(description='Error sending email via Mailtrap.', error_details=f'Error: {e}')
 
-# Email verification logic
-@utils.route("/send-verification-email")
-def send_verification_email(email, verification_code):
+# Email authentication logic
+@utils.route("/send-authentication-email")
+def send_authentication_email(email, authentication_code):
     """
-    Send a verification email with the code to the user.
+    Send a authentication email with the code to the user.
 
-    This function sends a verification code to the provided email address.
+    This function sends a authentication code to the provided email address.
 
     ---
     tags:
@@ -119,26 +119,26 @@ def send_verification_email(email, verification_code):
         in: query
         type: string
         required: true
-        description: The email address to which the verification code will be sent.
-      - name: verification_code
+        description: The email address to which the authentication code will be sent.
+      - name: authentication_code
         in: query
         type: string
         required: true
-        description: The verification code to be sent to the user.
+        description: The authentication code to be sent to the user.
     responses:
       200:
-        description: Verification email successfully sent.
+        description: authentication email successfully sent.
         schema:
           type: object
           properties:
             message:
               type: string
-              example: "Verification email sent."
+              example: "authentication email sent."
       500:
-        description: Error sending the verification email.
+        description: Error sending the authentication email.
     """
-    message = f"Your verification code is: {verification_code}"
-    subject = "Email Verification"
+    message = f"Your authentication code is: {authentication_code}"
+    subject = "Email authentication"
     return send_email(email, subject, message)
 
 @utils.route("/create-user")

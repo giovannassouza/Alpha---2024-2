@@ -32,6 +32,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = APP_SECRET
     app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{DB_NAME}'
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
     
     # Documentation setup
     swagger.init_app(app)

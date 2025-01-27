@@ -1,17 +1,16 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, Flask, jsonify, render_template, request, session
+from flask import Blueprint, Flask, jsonify, render_template, request, session, redirect, url_for
 from flask_login import login_required, current_user
-import requests
 from .models import Assinaturas
 from website.models import *
 from .json_responses import successful_response, error_response
 from .payment_api import create_payment_eternal, create_payment_anual, create_payment_monthly
 
 payment = Blueprint('payment', __name__)
-choosen_pref = -1
-@payment.route('/payment_checkout', methods= ["GET", "POST"])
+
+@payment.route('/payment_checkout', methods=["GET", "POST"])
 @login_required
-def payment_checkout(): 
+def payment_checkout():
     """
     Checkout signature payment.
     ---
@@ -44,26 +43,36 @@ def payment_checkout():
         description: Internal server error.
     """
     link_mensal = create_payment_monthly()
-    link_anual  = create_payment_anual()
+    link_anual = create_payment_anual()
     link_eterno = create_payment_eternal()
 
     if request.method == 'POST':
         try:
             choosen_pref = request.form.get('choosen_preference')
+            if not choosen_pref:
+                raise ValueError("Preference not selected.")
+
+            # Armazena a preferência na sessão
             session['choosen_pref'] = int(choosen_pref)
+            print(f"Preference stored in session: {session['choosen_pref']}")
+
+            # Redireciona para a página de pagamento concluído
             return successful_response(
                 description="Successfully generated the payment preferences and choosen preference",
-                data={"link_anual": link_anual, "link_mensal": link_mensal, "link_eterno": link_eterno})
-        
+                data={"link_anual": link_anual, "link_mensal": link_mensal, "link_eterno": link_eterno}
+            )
+
+
         except Exception as e:
             return error_response(
                 description="Could not get choosen preference. Perhaps you forgot to choose the payment type?",
                 response=401,
-                error_details={"exception": e}
+                error_details={"exception": str(e)}
             )
-    return render_template("payment_checkout.html")
 
- 
+    return render_template("payment.html", link_eterno=link_eterno, link_mensal=link_mensal, link_anual=link_anual)
+
+
 @payment.route('/payment_done')
 @login_required
 def payment_done():
@@ -81,40 +90,46 @@ def payment_done():
     responses:
       200:
         description: Signature successfully added in database.
-        schema:
-          type: object
-          properties:
-            link_mensal:
-              type: string
-              description: URL of the preference created to be paid.
-            link_anual:
-              type: string
-              description: URL of the preference created to be paid.
-            link_eterno:
-              type: string
-              description: URL of the preference created to be paid.
       401:
         description: Couldn't get preference from session.
       500:
         description: Internal server error.
     """
     try:
+        # Recupera a preferência da sessão
         choosen_pref = session.get('choosen_pref')
-        print(choosen_pref)
+        if choosen_pref is None:
+            raise ValueError("Preference not found in session.")
+
+        print(f"Preference retrieved from session: {choosen_pref}")
         user_id = current_user.get_id()
         signature_gap = get_days_signature(choosen_pref)
 
-        assinatura = Assinaturas(user_id=user_id, 
-                                 inicio = datetime.now(), fim = datetime.now()+timedelta(days=signature_gap), 
-                                 TipoAssinatura = choosen_pref)
+        if signature_gap == -1:
+            # Assinatura vitalícia (sem data de término)
+            assinatura = Assinaturas(
+                user_id=user_id,
+                inicio=datetime.now(),
+                fim=None,  # Sem data de término
+                TipoAssinatura=choosen_pref
+            )
+        else:
+            # Assinatura com data de término
+            assinatura = Assinaturas(
+                user_id=user_id,
+                inicio=datetime.now(),
+                fim=datetime.now() + timedelta(days=signature_gap),
+                TipoAssinatura=choosen_pref
+            )
+
         db.session.add(assinatura)
         db.session.commit()
 
-        return successful_response(description="Signature successfully validated",
-                                    response=200)
+        return successful_response(description="Signature successfully validated", response=200)
 
     except Exception as e:
-        return error_response(description="Couldn't get preference from session", response=401, error_details=e)
+        return error_response(description="Couldn't get preference from session", response=401, error_details={"exception": str(e)})
+
 
 @payment.route('/payment_denied')
 def payment_denied():
@@ -133,9 +148,14 @@ def payment_denied():
 
 
 def get_days_signature(preference: int):
-    if preference == 0:
+    """
+    Retorna o número de dias com base no tipo de assinatura escolhida.
+    """
+    if preference == 0:  # Mensal
         return 31
-    if preference == 1:
+    elif preference == 1:  # Anual
         return 365
-    if preference == 2:
-        return -1
+    elif preference == 2:  # Vitalício
+        return -1  # -1 indica assinatura vitalícia
+    else:
+        raise ValueError(f"Invalid preference value: {preference}")

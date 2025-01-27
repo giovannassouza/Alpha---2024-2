@@ -75,6 +75,7 @@ def login():
             if user.check_password(user_password):
                 login_user(user, remember=keep_logged_in)
                 if current_user.is_authenticated:
+                    validate_signature(user=user)
                     return successful_response(description="Logged in successfully.", data={"user": current_user.email})
                 else:
                     return error_response(description="Error logging in.", response=500)
@@ -459,6 +460,37 @@ def validate_cpf(cpf: str) -> bool:
     second_digit = calculate_digit(cpf[:9] + str(first_digit))
 
     return cpf == cpf[:9] + str(first_digit) + str(second_digit)
+
+def validate_signature(user: User):
+    """
+    Validate user subscription.
+    ---
+    tags:
+      - Signature
+    parameters:
+      - name: user
+        in: body
+        type: User
+        required: true
+        description: Logged in user.
+    responses:
+      200:
+        description: subscription succesfully validated.
+      400:
+        description: Expired subscription.
+      401:
+        description: Couldn't find subscription in database.
+    """
+
+    user.assinante = True
+    try:
+        signature = Assinaturas.query.filter_by(user_id= user.id).first()
+        if signature.fim < datetime.now():
+            user.assinante = False
+            return error_response(description="Expired subscription.", response=400)
+        return successful_response(description="Subscription successfully validated.", data={"fim_assinatura": signature.fim})
+    except Exception as e:
+        return error_response(description="Couldn't find subscription in database.", response=401)
 
 
 '''

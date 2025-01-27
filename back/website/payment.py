@@ -96,7 +96,6 @@ def payment_done():
         description: Internal server error.
     """
     try:
-        # Recupera a preferência da sessão
         choosen_pref = session.get('choosen_pref')
         if choosen_pref is None:
             raise ValueError("Preference not found in session.")
@@ -110,7 +109,7 @@ def payment_done():
             assinatura = Assinaturas(
                 user_id=user_id,
                 inicio=datetime.now(),
-                fim=None,  # Sem data de término
+                fim=None, 
                 TipoAssinatura=choosen_pref
             )
         else:
@@ -125,7 +124,7 @@ def payment_done():
         db.session.add(assinatura)
         db.session.commit()
 
-        return successful_response(description="Signature successfully validated", response=200)
+        return successful_response(description="Signature successfully created", response=200)
 
     except Exception as e:
         return error_response(description="Couldn't get preference from session", response=401, error_details={"exception": str(e)})

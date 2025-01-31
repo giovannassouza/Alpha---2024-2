@@ -3,7 +3,6 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
 from os import path
-from authlib.integrations.flask_client import OAuth
 from .api_key import *
 from flask_login import LoginManager
 from flask_cors import CORS
@@ -11,19 +10,6 @@ from flask_wtf.csrf import CSRFProtect
 
 app_url = "127.0.0.1:5000"
 db = SQLAlchemy()
-oauth = OAuth()
-google = oauth.register(
-    name = 'google',
-    client_id = 'CLIENT_ID',
-    client_secret = 'CLIENT_SECRET',
-    #server_metadata_uri='http://metadata.google.internal/computeMetadata/v1',
-    access_token_url = 'https://account.google.com/o/oauth2/token',
-    access_token_params = None,
-    authorize_url = 'https://accounts.google.com/o/oauth2/auth',
-    authorize_params = None,
-    api_base_url = 'https://www.googleapis.com/oauth2/v1/',
-    client_kwargs = {'scope': 'openid profile email'}
-)
 csrf = CSRFProtect()
 swagger = Swagger()
 
@@ -62,8 +48,6 @@ def create_app():
     from .account_management import account_management
     from .utils import utils
     
-    # Initialize OAuth
-    oauth.init_app(app) # create authentication instance attached to app
     
     # Initialize the database with the app
     db.init_app(app)

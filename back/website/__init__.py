@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
 from os import path
 from authlib.integrations.flask_client import OAuth
-from .api_key import APP_SECRET, USER, PASSWORD, HOST, PORT, DB_NAME, CLIENT_SECRET, CLIENT_ID, FRONT_END_URLS
+from .api_key import *
 from flask_login import LoginManager
 from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect

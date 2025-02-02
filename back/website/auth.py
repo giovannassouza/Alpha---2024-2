@@ -185,7 +185,7 @@ def sign_up():
     password = request.form.get('password')
     check_password = request.form.get('password_check')
     full_name = request.form.get('full_name')
-    birth_date = datetime.strptime(request.form.get('birth_date'), '%Y-%m-%d')
+    birth_date = datetime.strptime(request.get_json().get('birth_date'), '%Y-%m-%d')
     cpf = request.form.get('cpf')
     cliente_tina = request.form.get('cliente_tina')
     keep_logged_in = request.form.get('keep_logged_in')

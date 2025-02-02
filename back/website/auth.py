@@ -208,6 +208,8 @@ def sign_up():
       user.data_nasc = birth_date
       user.cliente_tina = cliente_tina
       user.set_password(password)
+      if user.email == 'es.grupoalpha2024@gmail.com':
+        user.is_adm = True
       db.session.commit()
       login_user(user, remember=keep_logged_in)
       if current_user.is_authenticated:
@@ -233,6 +235,8 @@ def sign_up():
       user.data_nasc = birth_date
       user.cliente_tina = cliente_tina
       user.set_password(password)
+      if user.email == 'es.grupoalpha2024@gmail.com':
+        user.is_adm = True
       db.session.commit()
       login_user(user, remember=keep_logged_in)
       if current_user.is_authenticated:
@@ -246,6 +250,7 @@ def sign_up():
         cpf=cpf,
         password=password,
         data_nasc=birth_date,
+        is_adm=True if user.email == 'es.grupoalpha2024@gmail.com' else False,
         cliente_tina=cliente_tina
     )
     

@@ -159,13 +159,19 @@ def payment_denied():
 @payment.route('/signature_manager')
 @login_required
 def signature_manager():
-    user_id = current_user.get_id()
-    try:
-        subscription = Assinaturas.query.filter_by(user_id=user_id).first()
-        return successful_response(description="Succesfully accessed active subscription.", 
-                                   data={"data_inicio": subscription.inicio, "data_fim": subscription.fim, "tipo_assinatura": subscription.TipoAssinatura})
-    except Exception as e:
-        return error_response(description="Could not find active subscription", error_details={"exception": str(e)})
+    if request.method == 'GET':
+      user_id = current_user.get_id()
+      try:
+          user = User.query.filter_by(id=user_id).first()
+          validate_signature(user=user)
+
+          subscription = Assinaturas.query.filter_by(user_id=user_id).first()
+          return successful_response(description="Succesfully accessed active subscription.", 
+                                    data={"data_inicio": subscription.inicio, "data_fim": subscription.fim, "tipo_assinatura": subscription.TipoAssinatura})
+      except Exception as e:
+          return error_response(description="Could not find active subscription", error_details={"exception": str(e)})
+    # elif request.method == 'POST':
+        
 
 def get_days_signature(preference: int):
     """

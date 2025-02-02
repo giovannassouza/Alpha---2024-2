@@ -3,7 +3,7 @@ from sqlalchemy import text
 from flask_login import login_required
 import mysql.connector
 
-from .json_responses import error_response
+from .json_responses import error_response, successful_response
 from .models import Curso, Aula, Questao
 from . import db
 
@@ -12,6 +12,7 @@ cc = Blueprint('course_creation',__name__)
 
 # Rota para processar o formulário
 @cc.route('/criar_curso', methods=['POST', 'GET'])
+@login_required
 def criar_curso():
     if(request.method == 'POST'):
         # Inserir dados do curso
@@ -24,7 +25,7 @@ def criar_curso():
             course = Curso(nome = course_name, descricao = course_description, image_URL = course_image_file_name,nAulas=nAulas)
             db.session.add(course)
         except Exception as e:
-            return flash('error')
+            return error_response(description="Bad Gateway.", response=502, error_details={"exception": "received an invalid response from an upstream server."})
 
         # Inserir aulas
         for i in range(1, int(request.form['numero_aulas']) + 1):
@@ -63,9 +64,10 @@ def criar_curso():
                     sentence2 = text(query)
                     db.session.execute(sentence2, params)
             except Exception as e:
-                return flash('error')
+                return error_response(description="Bad Gateway.", response=502, error_details={"exception": "received an invalid response from an upstream server."})
         # Salvar e fechar a conexão
         db.session.commit()
         db.session.close()
+        return successful_response(description="Created course", response=200)
 
     return render_template("ADM_create_course_template.html")

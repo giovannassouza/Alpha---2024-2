@@ -472,11 +472,16 @@ def validate_signature(user: User):
 
     try:
         signature = Assinaturas.query.filter_by(user_id= user.id).first()
-        user.assinante = 1
-        if signature.fim < datetime.now():
-            user.assinante = False
-            return error_response(description="Expired subscription.", response=400)
-        return successful_response(description="Subscription successfully validated.", data={"fim_assinatura": signature.fim})
+        if not signature:
+          return ValueError("No subscription found in database.")
+        if signature.fim < datetime.date.now():
+          user.assinante = 0
+          db.session.commit()
+          return ValueError("Expired subscription.")
+        else:
+          user.assinante = 1
+          db.session.commit()
+          return successful_response(description="Subscription successfully validated.", data={"fim_assinatura": signature.fim})
     except Exception as e:
         return error_response(description="Couldn't find subscription in database.", response=401, error_details={"Exception": str(e)})
 

@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):
     assinante   = db.Column(db.Integer, nullable=True, default=0)
     google_linked = db.Column(db.Integer, nullable=False, default=0)
     is_active = db.Column(db.Integer, nullable=False, default=1)
+    is_adm = db.Column(db.Integer, nullable=False, default=0)
     email_authenticated = db.Column(db.Integer, default=0)
     email_authentication_code = db.Column(db.String(7), nullable=True)
     

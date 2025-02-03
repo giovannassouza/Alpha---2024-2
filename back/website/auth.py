@@ -185,7 +185,7 @@ def sign_up():
     password = request.form.get('password')
     check_password = request.form.get('password_check')
     full_name = request.form.get('full_name')
-    birth_date = datetime.strptime(request.form.get('birth_date'), '%Y-%m-%d')
+    birth_date = datetime.strptime(request.get_json().get('birth_date'), '%Y-%m-%d')
     cpf = request.form.get('cpf')
     cliente_tina = request.form.get('cliente_tina')
     keep_logged_in = request.form.get('keep_logged_in')
@@ -208,6 +208,8 @@ def sign_up():
       user.data_nasc = birth_date
       user.cliente_tina = cliente_tina
       user.set_password(password)
+      if user.email == 'es.grupoalpha2024@gmail.com':
+        user.is_adm = True
       db.session.commit()
       login_user(user, remember=keep_logged_in)
       if current_user.is_authenticated:
@@ -233,6 +235,8 @@ def sign_up():
       user.data_nasc = birth_date
       user.cliente_tina = cliente_tina
       user.set_password(password)
+      if user.email == 'es.grupoalpha2024@gmail.com':
+        user.is_adm = True
       db.session.commit()
       login_user(user, remember=keep_logged_in)
       if current_user.is_authenticated:
@@ -246,6 +250,7 @@ def sign_up():
         cpf=cpf,
         password=password,
         data_nasc=birth_date,
+        is_adm=True if user.email == 'es.grupoalpha2024@gmail.com' else False,
         cliente_tina=cliente_tina
     )
     

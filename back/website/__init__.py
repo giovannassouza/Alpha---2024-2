@@ -32,7 +32,8 @@ def create_app():
     app.config['WTF_CSRF_HEADERS'] = ['X-CSRFToken']
     
     # CORS setup
-    CORS(app, resources={r"/*": {"origins": FRONT_END_URLS}})
+    CORS(app, supports_credentials=True, origins="http://localhost:3000")
+
     
     # Login manager setup
     login_manager = LoginManager()
@@ -47,6 +48,7 @@ def create_app():
     from .wtf_error import wtf_error
     from .account_management import account_management
     from .utils import utils
+    from .csrf_ import csrf_
     
     
     # Initialize the database with the app
@@ -66,6 +68,7 @@ def create_app():
     app.register_blueprint(wtf_error, url_prefix='/')
     app.register_blueprint(account_management, url_prefix='/')
     app.register_blueprint(utils, url_prefix='/')
+    app.register_blueprint(csrf_, url_prefix='/')
     
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

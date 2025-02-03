@@ -1,4 +1,6 @@
 # All APIs and Frameworks keys
+#Sabiá API key
+maritaca_api = "103424371256528145293_cd00a74e1a9463da"
 
 # App setup
 APP_SECRET = 'OUR-PLATINA'
@@ -12,14 +14,6 @@ PORT = 3306
 
 # MercadoPago key
 mercadoPago_key = "APP_USR-399152317369467-111409-e7711ec50d89b14605bc6f64ee5164e1-2095118211"
-
-# CORS setup
-# Lista de URLs do front-end permitidas
-FRONT_END_URLS = [
-    "http://127.0.0.1:5000/auth-test",
-    "http://frontend-dominio-exemplo2.com",
-    "http://frontend-dominio-exemplo3.com"
-]
 
 # TrapMail setup
 MAILTRAP_USERNAME = 'api'

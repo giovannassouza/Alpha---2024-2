@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 import io
+import warnings
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -35,10 +36,10 @@ class WaveformOptions:
         waveform_color: The color (as a hex string or valid CSS color) of the full waveform representing the amplitude of the audio. Defaults to a light gray color.
         waveform_progress_color: The color (as a hex string or valid CSS color) that the waveform fills with to as the audio plays. Defaults to the accent color.
         trim_region_color: The color (as a hex string or valid CSS color) of the trim region. Defaults to the accent color.
-        show_recording_waveform: Whether to show the waveform when recording audio. Defaults to True.
-        show_controls: Whether to show the standard HTML audio player below the waveform when recording audio or playing recorded audio. Defaults to False.
-        skip_length: The percentage (between 0 and 100) of the audio to skip when clicking on the skip forward / skip backward buttons. Defaults to 5.
-        sample_rate: The output sample rate (in Hz) of the audio after editing. Defaults to 44100.
+        show_recording_waveform: If True, shows a waveform when recording audio or playing audio. If False, uses the default browser audio players. For streamed audio, the default browser audio player is always used.
+        show_controls: Deprecated and has no effect. Use `show_recording_waveform` instead.
+        skip_length: The percentage (between 0 and 100) of the audio to skip when clicking on the skip forward / skip backward buttons.
+        sample_rate: The output sample rate (in Hz) of the audio after editing.
     """
 
     waveform_color: str | None = None
@@ -114,7 +115,7 @@ class Audio(
     ):
         """
         Parameters:
-            value: A path, URL, or [sample_rate, numpy array] tuple (sample rate in Hz, audio data as a float or int numpy array) for the default value that Audio component is going to take. If callable, the function will be called whenever the app loads to set the initial value of the component.
+            value: A path, URL, or [sample_rate, numpy array] tuple (sample rate in Hz, audio data as a float or int numpy array) for the default value that Audio component is going to take. If a function is provided, the function will be called each time the app loads to set the initial value of this component.
             sources: A list of sources permitted for audio. "upload" creates a box where user can drop an audio file, "microphone" creates a microphone input. The first element in the list will be used as the default source. If None, defaults to ["upload", "microphone"], or ["microphone"] if `streaming` is True.
             type: The format the audio file is converted to before being passed into the prediction function. "numpy" converts the audio to a tuple consisting of: (int sample rate, numpy.array for the data), "filepath" passes a str path to a temporary file containing the audio.
             label: the label for this component. Appears above the component and is also used as the header if there are a table of examples for this component. If None and used in a `gr.Interface`, the label will be the name of the parameter this component is assigned to.
@@ -190,6 +191,10 @@ class Audio(
             self.waveform_options = WaveformOptions(**waveform_options)
         else:
             self.waveform_options = waveform_options
+        if self.waveform_options.show_controls is not False:
+            warnings.warn(
+                "The `show_controls` parameter is deprecated and will be removed in a future release. Use `show_recording_waveform` instead."
+            )
         self.min_length = min_length
         self.max_length = max_length
         self.recording = recording

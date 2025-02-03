@@ -809,18 +809,18 @@ class Interface(Blocks):
             None,
             [],
             ([input_component_column] if input_component_column else []),  # type: ignore
-            js=f"""() => {json.dumps(
-
-                    [{'variant': None, 'visible': True, '__type__': 'update'}]
+            js=f"""() => {
+                json.dumps(
+                    [{"variant": None, "visible": True, "__type__": "update"}]
                     if self.interface_type
-                       in [
-                           InterfaceTypes.STANDARD,
-                           InterfaceTypes.INPUT_ONLY,
-                           InterfaceTypes.UNIFIED,
-                       ]
+                    in [
+                        InterfaceTypes.STANDARD,
+                        InterfaceTypes.INPUT_ONLY,
+                        InterfaceTypes.UNIFIED,
+                    ]
                     else []
-
-            )}
+                )
+            }
             """,
         )
 
@@ -971,6 +971,7 @@ class TabbedInterface(Blocks):
             css=css,
             js=js,
             head=head,
+            fill_height=True,
         )
         if tab_names is None:
             tab_names = [f"Tab {i}" for i in range(len(interface_list))]
@@ -981,7 +982,10 @@ class TabbedInterface(Blocks):
                 )
             with Tabs():
                 for interface, tab_name in zip(interface_list, tab_names, strict=False):
-                    with Tab(label=tab_name):
+                    with Tab(
+                        label=tab_name,
+                        scale=1 if interface.fill_height else 0,
+                    ):
                         interface.render()
 
 

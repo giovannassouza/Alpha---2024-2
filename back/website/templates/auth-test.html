@@ -11,7 +11,6 @@
     <!-- Signup Form -->
     <h2>Sign Up</h2>
     <form action="/sign-up" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="email">Email:</label>
         <input type="email" name="email" required>
         <label for="password">Password:</label>
@@ -34,7 +33,6 @@
     <!-- Login Form -->
     <h2>Log In</h2>
     <form action="/login/authenticate" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="id_method">Email or CPF:</label>
         <input type="text" name="id_method" required>
         <label for="password">Password:</label>
@@ -47,7 +45,6 @@
     <!-- Update Account Form -->
     <h2>Update Account</h2>
     <form action="/account-info" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="full_name">Full Name:</label>
         <input type="text" name="full_name">
         <label for="email">Email:</label>
@@ -72,7 +69,6 @@
     <!-- Logout Form -->
     <h2>Log Out</h2>
     <form action="/logout" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit">Log Out</button>
     </form>
 

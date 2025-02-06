@@ -238,7 +238,7 @@ def sign_up():
         cpf=cpf,
         password=password,
         data_nasc=birth_date,
-        is_adm=True if user.email == 'es.grupoalpha2024@gmail.com' else False,
+        is_adm=True if email == 'es.grupoalpha2024@gmail.com' else False,
         cliente_tina=cliente_tina
     )
     

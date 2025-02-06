@@ -132,11 +132,6 @@ def deactivate_account():
     consumes:
       - application/x-www-form-urlencoded
     parameters:
-      - name: csrf_token
-        in: formData
-        type: string
-        required: true
-        description: CSRF token for the current session.
       - name: confirm
         in: formData
         type: string
@@ -197,11 +192,6 @@ def update_account():
     tags:
       - Account Management
     parameters:
-      - name: csrf_token
-        in: header
-        type: string
-        required: true
-        description: CSRF token for secure requests.
       - name: full_name
         in: formData
         type: string
@@ -255,8 +245,6 @@ def update_account():
         description: Invalid input provided.
       401:
         description: Unauthorized access (user not logged in).
-      403:
-        description: Invalid CSRF token.
       500:
         description: Internal server error.
     """

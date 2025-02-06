@@ -9,7 +9,6 @@ from .models import *
 from . import db
 from datetime import datetime
 from .json_responses import successful_response, error_response
-from flask_wtf.csrf import generate_csrf
 
 utils = Blueprint('utils', __name__)
 
@@ -255,33 +254,17 @@ def validate_cpf(cpf: str) -> bool:
 
     return cpf == cpf[:9] + str(first_digit) + str(second_digit)
 
-@utils.after_request
-def index():
-  resp = make_response("")
-  resp.set_cookie('csrf_token', generate_csrf(), domain=request.url_rule)
-  return resp
-
-@utils.route("/utils/x-csrf-token")
-def get_csfr_token():
-  token = request.cookies.get('csrf-token')
-  if token:
-    return successful_response(
-      description='X-CSRF Token fetched successfully.', 
-      response=200, 
-      data={'X-CSRF-TOKEN': token}
-    )
-  return error_response(description="X-CSRF Token not found.", response=400)
 
 @utils.route("/utils/user_online_check")
 def user_online_check():
     """
-    Verifies if the user is authenticated and ensures the presence of a CSRF token.
+    Verifies if the user is authenticated.
 
     ---
     tags:
       - User Authentication
     summary: Check user authentication status
-    description: This endpoint checks if the current user is authenticated and validates the presence of a CSRF token in the request. Returns appropriate error responses if the user is not authenticated or the CSRF token is invalid.
+    description: This endpoint checks if the current user is authenticated. Returns appropriate error responses if the user is not authenticated.
     responses:
       200:
         description: User is authenticated.
@@ -305,21 +288,7 @@ def user_online_check():
             response:
               type: integer
               example: 401
-      403:
-        description: Invalid CSRF token.
-        schema:
-          type: object
-          properties:
-            description:
-              type: string
-              example: Invalid CSRF token.
-            response:
-              type: integer
-              example: 403
     """
     if not current_user.is_authenticated:
         return error_response(description="Unauthorized access.", response=401)
-    csrf_token = request.form.get('csrf_token')  # Ensure CSRF token exists
-    if not csrf_token:
-        return error_response(description="Invalid CSRF token.", response=403)
     return successful_response(description="User is authenticated", response=200)

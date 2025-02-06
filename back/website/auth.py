@@ -17,11 +17,6 @@ def login():
     tags:
       - Authentication
     parameters:
-      - name: csrf_token
-        in: formData
-        type: string
-        required: true
-        description: CSRF token for secure requests.
       - name: id_method
         in: formData
         type: string
@@ -48,8 +43,6 @@ def login():
               description: Authenticated user email.
       401:
         description: Unauthorized access or incorrect credentials.
-      403:
-        description: Invalid CSRF token.
       404:
         description: User not found.
       500:
@@ -58,9 +51,6 @@ def login():
     if current_user.is_authenticated:
         return error_response(description="Unauthorized access.", response=401)
     if request.method == 'POST':
-        csrf_token = request.form.get('csrf_token')  # Ensure CSRF token exists
-        if not csrf_token:
-            return error_response(description="Invalid CSRF token.", response=403)
         id_method = request.form.get('id_method')
         user_password = request.form.get('password')
         keep_logged_in = bool(request.form.get('keep_logged_in'))
@@ -157,8 +147,6 @@ def sign_up():
         description: Invalid input provided (e.g., invalid email, mismatched passwords, or invalid birth date/CPF).
       401:
         description: Unauthorized access. Occurs if a logged-in user attempts to access the sign-up page.
-      403:
-        description: Invalid CSRF token. Occurs if CSRF protection validation fails.
       409:
         description: Conflict error due to duplicate email or CPF already registered.
       500:

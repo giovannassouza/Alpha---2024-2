@@ -6,7 +6,7 @@ maritaca_api = "103424371256528145293_cd00a74e1a9463da"
 APP_SECRET = 'OUR-PLATINA'
 
 # DB setup
-DB_NAME = "sys"
+DB_NAME = "database"
 USER = 'root'
 PASSWORD = 'carecas2'
 HOST = 'localhost'
@@ -21,3 +21,10 @@ MAILTRAP_PASSWORD = 'd912a7b6f1e17fad33c403cee6f04c5d'
 MAILTRAP_PORT = 587
 MAILTRAP_HOST = 'live.smtp.mailtrap.io'
 MAILTRAP_API_KEY = 'd912a7b6f1e17fad33c403cee6f04c5d'
+
+
+# Front-end urls
+front_urls = [
+    "http://localhost:3000",
+    "https://grupoalpha.netlify.app/"
+]

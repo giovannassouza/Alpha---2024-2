@@ -26,7 +26,7 @@ def create_app():
     }
     
     # CORS setup
-    CORS(app, supports_credentials=True, origins="http://localhost:3000")
+    CORS(app, supports_credentials=True, origins=front_urls)
 
     
     # Login manager setup

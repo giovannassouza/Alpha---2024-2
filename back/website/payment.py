@@ -159,6 +159,31 @@ def payment_denied():
 @payment.route('/signature_manager')
 @login_required
 def signature_manager():
+    """
+    Manage user signature.
+    ---
+    tags:
+      - Signature
+    responses:
+      200:
+        description: Successfully accessed active subscription.
+        schema:
+          type: object
+          properties:
+            data_inicio:
+              type: string
+              description: Start date of the subscription.
+            data_fim:
+              type: string
+              description: End date of the subscription.
+            tipo_assinatura:
+              type: int
+              description: Type of subscription.
+      404:
+        description: Could not find active subscription.
+      500:
+        description: Internal server error.
+    """
     if request.method == 'GET':
       user_id = current_user.get_id()
       try:
@@ -170,8 +195,7 @@ def signature_manager():
                                     data={"data_inicio": subscription.inicio, "data_fim": subscription.fim, "tipo_assinatura": subscription.TipoAssinatura})
       except Exception as e:
           return error_response(description="Could not find active subscription", error_details={"exception": str(e)})
-    # elif request.method == 'POST':
-        
+
 
 def get_days_signature(preference: int):
     """

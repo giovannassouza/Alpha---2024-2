@@ -30,11 +30,48 @@ def download_video(url, output_path):
 
 @app.route('/')
 def home():
+    """
+    Home endpoint to check API status.
+    ---
+    tags:
+      - Home
+    responses:
+      200:
+        description: API is working.
+    """
     return "API OK"
 
 # Rota para baixar o vídeo
 @app.route('/videos/download', methods=['POST'])
 def api_download_video():
+    """
+    Endpoint to download a YouTube video.
+    ---
+    tags:
+      - Videos
+    parameters:
+      - name: url
+        in: body
+        type: string
+        required: true
+        description: URL of the YouTube video to download.
+    responses:
+      200:
+        description: Video downloaded successfully.
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Success message.
+            embed_url:
+              type: string
+              description: URL to embed the downloaded video.
+      400:
+        description: URL not provided.
+      500:
+        description: Error downloading the video.
+    """
     data = request.get_json()  # Obtém os dados JSON da requisição
     url = data.get('url')  # URL do vídeo
     if not url:
@@ -59,6 +96,23 @@ def api_download_video():
 # Rota para mostrar a interface do YouTube no Front-end
 @app.route('/video', methods=['GET'])
 def show_video():
+    """
+    Endpoint to show the video player interface.
+    ---
+    tags:
+      - Videos
+    parameters:
+      - name: video_id
+        in: query
+        type: string
+        required: true
+        description: ID of the YouTube video to embed.
+    responses:
+      200:
+        description: Video player interface.
+      404:
+        description: Video not found.
+    """
     video_id = request.args.get('video_id')  # ID do vídeo passado como parâmetro
     if video_id:
         embed_url = f"https://www.youtube.com/embed/{video_id}"

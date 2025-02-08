@@ -77,6 +77,25 @@ def get_certificate():
 @certificate.route('/download_certificate/<filename>')
 @login_required
 def download_certificate(filename):
+    """
+    Endpoint to download a generated certificate.
+    ---
+    tags:
+      - Certificates
+    parameters:
+      - name: filename
+        in: path
+        type: string
+        required: true
+        description: The filename of the certificate to download.
+    responses:
+      200:
+        description: Certificate file.
+        schema:
+          type: file
+      404:
+        description: Certificate not found.
+    """
     try:
         file_path = os.path.join('static/', filename)
         return send_file(file_path, as_attachment=True)

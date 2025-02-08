@@ -11,7 +11,15 @@ back_urls= {
         }
 
 def create_payment_anual():
-    # Credenciais de teste
+    """
+    Create an annual payment preference using MercadoPago.
+    ---
+    tags:
+      - Payments
+    responses:
+      200:
+        description: URL of the preference created to be paid.
+    """
     sdk = mercadopago.SDK(mercadoPago_key)
 
     request = {
@@ -38,7 +46,15 @@ def create_payment_anual():
 
 
 def create_payment_monthly():
-    # Credenciais de teste
+    """
+    Create a monthly payment preference using MercadoPago.
+    ---
+    tags:
+      - Payments
+    responses:
+      200:
+        description: URL of the preference created to be paid.
+    """
     sdk = mercadopago.SDK(mercadoPago_key)
 
     request = {
@@ -63,7 +79,15 @@ def create_payment_monthly():
     return payment_link
 
 def create_payment_eternal():
-    # Credenciais de teste
+    """
+    Create a lifetime payment preference using MercadoPago.
+    ---
+    tags:
+      - Payments
+    responses:
+      200:
+        description: URL of the preference created to be paid.
+    """
     sdk = mercadopago.SDK(mercadoPago_key)
 
     request = {

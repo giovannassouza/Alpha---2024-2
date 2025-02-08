@@ -10,7 +10,6 @@ from flask_cors import CORS
 app_url = "127.0.0.1:5000"
 db = SQLAlchemy()
 swagger = Swagger()
-login_manager = LoginManager()
 
 def create_app():
     # Flask app setup
@@ -31,6 +30,7 @@ def create_app():
 
     
     # Login manager setup
+    login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
     
@@ -63,10 +63,6 @@ def create_app():
     app.register_blueprint(account_management, url_prefix='/')
     app.register_blueprint(utils, url_prefix='/')
     app.register_blueprint(cc, url_prefix='/')
-    
-    login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
-    login_manager.init_app(app)
     
     from . import models
     @login_manager.user_loader

@@ -10,7 +10,7 @@
 
     <!-- Signup Form -->
     <h2>Sign Up</h2>
-    <form action="/sign-up" method="POST">
+    <form id="sign-up-form">
         <label for="email">Email:</label>
         <input type="email" name="email" required>
         <label for="password">Password:</label>
@@ -32,7 +32,7 @@
 
     <!-- Login Form -->
     <h2>Log In</h2>
-    <form action="/login/authenticate" method="POST">
+    <form id="login-form">
         <label for="id_method">Email or CPF:</label>
         <input type="text" name="id_method" required>
         <label for="password">Password:</label>
@@ -44,7 +44,7 @@
 
     <!-- Update Account Form -->
     <h2>Update Account</h2>
-    <form action="/account-info" method="POST">
+    <form id="update-account-form">
         <label for="full_name">Full Name:</label>
         <input type="text" name="full_name">
         <label for="email">Email:</label>
@@ -68,7 +68,7 @@
 
     <!-- Logout Form -->
     <h2>Log Out</h2>
-    <form action="/logout" method="POST">
+    <form id="logout-form">
         <button type="submit">Log Out</button>
     </form>
 
@@ -77,8 +77,45 @@
         <p>Loading user data...</p>
     </div>
 
-
     <script>
+        // Handle form submissions with fetch
+        function handleFormSubmission(formId, actionUrl) {
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                
+                // Handle checkboxes as booleans
+                Object.keys(data).forEach(key => {
+                    if (data[key] === '1') data[key] = true;
+                });
+
+                try {
+                    const response = await fetch(actionUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    alert(result.message || 'Request successful!');
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred.');
+                }
+            });
+        }
+
+        // Attach handlers to forms
+        handleFormSubmission('sign-up-form', '/sign-up');
+        handleFormSubmission('login-form', '/login/authenticate');
+        handleFormSubmission('update-account-form', '/account-info');
+        handleFormSubmission('logout-form', '/logout');
+
         // Function to fetch user data
         async function getUserData() {
             try {
@@ -88,16 +125,14 @@
                         'Content-Type': 'application/json'
                     }
                 });
-    
+
                 if (!response.ok) {
                     throw new Error(`Error: ${response.status}`);
                 }
-    
+
                 const result = await response.json();
-    
-                // Check if the server responded successfully
+
                 if (result.response === 200) {
-                    console.log('User Data:', result.data);
                     displayUserData(result.data);
                 } else {
                     console.error('Failed to fetch user data:', result.description);
@@ -106,7 +141,7 @@
                 console.error('Error fetching user data:', error);
             }
         }
-    
+
         // Function to display user data on the page
         function displayUserData(data) {
             const userDataDiv = document.getElementById('user-data');
@@ -116,10 +151,9 @@
                 <p><strong>CPF:</strong> ${data.cpf}</p>
             `;
         }
-    
+
         // Fetch user data when the page loads
         window.onload = getUserData;
     </script>
-    
 </body>
 </html>

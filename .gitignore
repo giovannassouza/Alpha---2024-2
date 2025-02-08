@@ -14,3 +14,4 @@ back/website/__pycache__/
 *.pyc
 back/instance/database
 back/instance/database
+/back/website/__pycache__

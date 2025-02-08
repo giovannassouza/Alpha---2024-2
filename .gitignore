@@ -15,3 +15,4 @@ back/website/__pycache__/
 back/instance/database
 back/instance/database
 /back/website/__pycache__
+*.pyc

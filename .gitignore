@@ -12,3 +12,5 @@ back/website/__pycache__/
 *.pdf
 /back/website/__pycache__
 *.pyc
+back/instance/database
+back/instance/database

@@ -180,9 +180,6 @@ def sign_up():
     except ValueError:
         return error_response(description="Invalid birth date format. Use YYYY-MM-DD.", response=400)
     
-    if birth_date_str == '0001-01-01':
-        return error_response(description="Birth date not provided.", response=400)
-    
     try:
         user = User.query.filter_by(email=email).first() # Try finding user with email
     except Exception as e:

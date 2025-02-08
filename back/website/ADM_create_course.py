@@ -1,73 +1,93 @@
-from flask import Flask, flash, render_template, request, redirect, url_for, Blueprint
+from flask import Flask, flash, render_template, request, redirect, url_for, Blueprint, jsonify
 from sqlalchemy import text
 from flask_login import login_required
 import mysql.connector
+import base64
+from io import BytesIO
 
 from .json_responses import error_response, successful_response
 from .models import Curso, Aula, Questao
 from . import db
 
-cc = Blueprint('course_creation',__name__)
+cc = Blueprint('course_creation', __name__)
 
 
-# Rota para processar o formulário
+# Rota para processar o JSON
 @cc.route('/criar_curso', methods=['POST', 'GET'])
-@login_required
 def criar_curso():
-    if(request.method == 'POST'):
-        # Inserir dados do curso
-        try:
-            course_name = request.form['titulo']
-            nAulas = request.form['numero_aulas']
-            course_description = request.form['descricao_curso']
-            #RESOLVER IMAGENS DEPOIS
-            course_image_file_name = request.files['imagem_curso'].filename  # Nome do arquivo da imagem
-            course = Curso(nome = course_name, descricao = course_description, image_URL = course_image_file_name,nAulas=nAulas)
-            db.session.add(course)
-        except Exception as e:
-            return error_response(description="Bad Gateway.", response=502, error_details={"exception": "received an invalid response from an upstream server."})
+    if request.method == 'POST':
+        # Parse JSON data
+        data = request.get_json()
 
-        # Inserir aulas
-        for i in range(1, int(request.form['numero_aulas']) + 1):
-            sentence1 = text('''
-            INSERT INTO Aula (curso_id, titulo, descricao, url)
-            VALUES (:curso_id, :titulo, :descricao, :url)
-            ''')
-    # Executar a consulta com os parâmetros
-            db.session.execute(sentence1, {
-                'curso_id': course.id,
-                'titulo': request.form.get(f'titulo_aula_{i}'),
-                'descricao': request.form.get(f'descricao_aula_{i}'),
-                'url': request.form.get(f'url_aula_{i}')
-            })
-        # Inserir questões e alternativas
-        for i in range(1, 6):  # Até 5 questões
-            enunciado = request.form.get(f'enunciado_questao_{i}')
-            try:
-                if enunciado:
-                    query = '''
-                    INSERT INTO Questao (id_curso, enunciado, alternativa_A, alternativa_B, alternativa_C, alternativa_D, alternativa_E, resposta_correta)
-                    VALUES (:id_curso, :enunciado, :alternativa_a, :alternativa_b, :alternativa_c, :alternativa_d, :alternativa_e, :resposta_correta)
-                    '''
-                    # Parâmetros em um dicionário
-                    params = {
-                        'id_curso': course.id,
-                        'enunciado': enunciado,
-                        'alternativa_a': request.form.get(f'alternativa_a_{i}'),
-                        'alternativa_b': request.form.get(f'alternativa_b_{i}'),
-                        'alternativa_c': request.form.get(f'alternativa_c_{i}'),
-                        'alternativa_d': request.form.get(f'alternativa_d_{i}'),
-                        'alternativa_e': request.form.get(f'alternativa_e_{i}'),
-                        'resposta_correta': request.form.get(f'resposta_questao_{i}')
-                    }
-                    # Executar a consulta com o SQLAlchemy
-                    sentence2 = text(query)
-                    db.session.execute(sentence2, params)
-            except Exception as e:
-                return error_response(description="Bad Gateway.", response=502, error_details={"exception": "received an invalid response from an upstream server."})
-        # Salvar e fechar a conexão
-        db.session.commit()
-        db.session.close()
-        return successful_response(description="Created course", response=200)
+        if not data:
+            return error_response(description="No JSON data provided.", response=400)
+
+        try:
+            # Extract course data from JSON
+            course_name = data.get('titulo')
+            nAulas = data.get('numero_aulas')
+            course_description = data.get('descricao_curso')
+            course_image_base64 = data.get('imagem_curso')  # Base64-encoded image
+
+            # Decode the base64 image (if provided)
+            if course_image_base64:
+                course_image_data = base64.b64decode(course_image_base64)
+                course_image_file_name = f"{course_name}_image.jpg"  # Generate a filename
+            else:
+                course_image_data = None
+                course_image_file_name = None
+
+            # Create the course
+            course = Curso(nome=course_name, descricao=course_description, nAulas=nAulas, image_file=course_image_data, image_file_name=course_image_file_name)
+            db.session.add(course)
+            db.session.flush()  # Ensure the course ID is generated
+        except Exception as e:
+            db.session.rollback()
+            return error_response(description="Internal Server Error. Could not create course", response=500, error_details={"exception": str(e)})
+        try:
+                # Insert aulas
+                aulas = data.get('aulas', [])
+                for aula in aulas:
+                    sentence1 = text('''
+                    INSERT INTO Aula (curso_id, titulo, descricao, url)
+                    VALUES (:curso_id, :titulo, :descricao, :url)
+                    ''')
+                    db.session.execute(sentence1, {
+                        'curso_id': course.id,
+                        'titulo': aula.get('titulo'),
+                        'descricao': aula.get('descricao'),
+                        'url': aula.get('url')
+                    })
+        except Exception as e:
+            db.session.rollback()
+            return error_response(description="Internal Server Error. Could not add class", response=500, error_details={"exception": str(e)})
+        try:
+            # Insert questões
+            questoes = data.get('questoes', [])
+            for questao in questoes:
+                query = '''
+                INSERT INTO Questao (id_curso, enunciado, alternativa_A, alternativa_B, alternativa_C, alternativa_D, alternativa_E, resposta_correta)
+                VALUES (:id_curso, :enunciado, :alternativa_a, :alternativa_b, :alternativa_c, :alternativa_d, :alternativa_e, :resposta_correta)
+                '''
+                params = {
+                    'id_curso': course.id,
+                    'enunciado': questao.get('enunciado'),
+                    'alternativa_a': questao.get('alternativa_a'),
+                    'alternativa_b': questao.get('alternativa_b'),
+                    'alternativa_c': questao.get('alternativa_c'),
+                    'alternativa_d': questao.get('alternativa_d'),
+                    'alternativa_e': questao.get('alternativa_e'),
+                    'resposta_correta': questao.get('resposta_correta')
+                }
+                sentence2 = text(query)
+                db.session.execute(sentence2, params)
+
+            # Commit changes to the database
+            db.session.commit()
+            return successful_response(description="Created course", response=200)
+
+        except Exception as e:
+            db.session.rollback()
+            return error_response(description="Internal Server Error. Could not add question", response=500, error_details={"exception": str(e)})
 
     return render_template("ADM_create_course_template.html")

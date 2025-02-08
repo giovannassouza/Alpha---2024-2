@@ -42,6 +42,7 @@ def create_app():
     from .wtf_error import wtf_error
     from .account_management import account_management
     from .utils import utils
+    from .ADM_create_course import cc
     
     
     # Initialize the database with the app
@@ -61,6 +62,7 @@ def create_app():
     app.register_blueprint(wtf_error, url_prefix='/')
     app.register_blueprint(account_management, url_prefix='/')
     app.register_blueprint(utils, url_prefix='/')
+    app.register_blueprint(cc, url_prefix='/')
     
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

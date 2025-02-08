@@ -37,7 +37,8 @@ class Curso(db.Model):
     nome = db.Column(db.String(150), unique=True)
     descricao = db.Column(db.Text)
     nAulas = db.Column(db.Integer)
-    image_URL = db.Column(db.String(150))
+    image_file = db.Column(db.LargeBinary)
+    image_file_name = db.Column(db.String(150))
 
 class Questionario(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

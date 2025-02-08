@@ -39,7 +39,6 @@ def create_app():
     from .payment import payment
     from .quiz import quiz
     from .certificate import certificate
-    from .wtf_error import wtf_error
     from .account_management import account_management
     from .utils import utils
     from .ADM_create_course import cc
@@ -59,7 +58,6 @@ def create_app():
     app.register_blueprint(payment, url_prefix='/')
     app.register_blueprint(quiz, url_prefix='/')
     app.register_blueprint(certificate, url_prefix='/')
-    app.register_blueprint(wtf_error, url_prefix='/')
     app.register_blueprint(account_management, url_prefix='/')
     app.register_blueprint(utils, url_prefix='/')
     app.register_blueprint(cc, url_prefix='/')

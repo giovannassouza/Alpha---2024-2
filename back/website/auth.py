@@ -9,7 +9,7 @@ from .utils import validate_cpf, create_user, user_online_check, send_authentica
 auth = Blueprint('auth', __name__)
 
 
-@auth.route('/login/authenticate', methods=['POST', 'GET'])
+@auth.route('/login/authenticate', methods=['POST'])
 def login():
     """
     Authenticate user login.
@@ -50,36 +50,38 @@ def login():
     """
     if current_user.is_authenticated:
         return error_response(description="Unauthorized access.", response=401)
-    if request.method == 'POST':
-        id_method = request.form.get('id_method')
-        user_password = request.form.get('password')
-        keep_logged_in = bool(request.form.get('keep_logged_in'))
-        
-        try:
-            if '@' in id_method:
-                user = User.query.filter_by(email=id_method).first()
-            else:
-                user = User.query.filter_by(cpf=id_method).first()
-        except Exception as e:
-            return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
-        
-        if (not user) or (not user.is_active):
-          return error_response(description="User not found. Check your credentials.", response=404)
-        
-        if not user.check_password(user_password):
-          return error_response(description="Incorrect password. Check your credentials.", response=401)
-        
-        login_user(user, remember=keep_logged_in)
-        
-        if not current_user.is_authenticated:
-          return error_response(description="Error logging in.", response=500)
-        
-        return successful_response(description="Logged in successfully.", data={"user": current_user.email})
-    
-    return render_template('login.html')
+
+    data = request.get_json()
+    id_method = data.get('id_method')
+    user_password = data.get('password')
+    keep_logged_in = data.get('keep_logged_in', False)
+
+    if id_method is None:
+        return error_response(description="No identification method provided.", response=400)
+
+    try:
+        if '@' in id_method:
+            user = User.query.filter_by(email=id_method).first()
+        else:
+            user = User.query.filter_by(cpf=id_method).first()
+    except Exception as e:
+        return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+
+    if (not user) or (not user.is_active):
+        return error_response(description="User not found. Check your credentials.", response=404)
+
+    if not user.check_password(user_password):
+        return error_response(description="Incorrect password. Check your credentials.", response=401)
+
+    login_user(user, remember=keep_logged_in)
+
+    if not current_user.is_authenticated:
+        return error_response(description="Error logging in.", response=500)
+
+    return successful_response(description="Logged in successfully.", data={"user": current_user.email})
 
 
-@auth.route('/sign-up', methods=['POST', 'GET'])
+@auth.route('/sign-up', methods=['POST'])
 def sign_up():
     """
     Register a new user account.
@@ -159,21 +161,15 @@ def sign_up():
     if current_user.is_authenticated:
         return error_response(description="Unauthorized access.", response=401)
     
-    if request.method == 'GET':
-        return render_template('sign-up.html')
-    
-    email = request.form.get('email')
-    password = request.form.get('password')
-    check_password = request.form.get('password_check')
-    full_name = request.form.get('full_name')
-    birth_date_str = request.form.get(
-      'birth_date',
-      default='0001-01-01',
-      type=str
-      )
-    cpf = request.form.get('cpf')
-    cliente_tina = request.form.get('cliente_tina')
-    keep_logged_in = request.form.get('keep_logged_in')
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    check_password = data.get('password_check')
+    full_name = data.get('full_name')
+    birth_date_str = data.get('birth_date', '0001-01-01')
+    cpf = data.get('cpf')
+    cliente_tina = data.get('cliente_tina')
+    keep_logged_in = data.get('keep_logged_in', False)
     
     try:
         birth_date = datetime.strptime(birth_date_str, '%Y-%m-%d')
@@ -251,7 +247,7 @@ def sign_up():
         return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
     return error_response(description="Signed up but error logging in.", response=500)
 
-@auth.route('/logout', methods=['POST', 'GET'])
+@auth.route('/logout', methods=['POST'])
 @login_required
 def logout():
     """

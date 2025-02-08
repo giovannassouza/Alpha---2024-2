@@ -53,7 +53,9 @@ def call_user():
         data={
             'name': current_user.full_name,
             'email': current_user.email,
-            'cpf': current_user.cpf
+            'cpf': current_user.cpf,
+            'is_adm': current_user.is_adm,
+            'birth_date': current_user.data_nasc
         }
     )
 

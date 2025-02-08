@@ -166,15 +166,22 @@ def sign_up():
     password = request.form.get('password')
     check_password = request.form.get('password_check')
     full_name = request.form.get('full_name')
-    birth_date_str = request.form.get('birth_date')
+    birth_date_str = request.form.get(
+      'birth_date',
+      default='0001-01-01',
+      type=str
+      )
     cpf = request.form.get('cpf')
     cliente_tina = request.form.get('cliente_tina')
     keep_logged_in = request.form.get('keep_logged_in')
-
+    
     try:
         birth_date = datetime.strptime(birth_date_str, '%Y-%m-%d')
     except ValueError:
         return error_response(description="Invalid birth date format. Use YYYY-MM-DD.", response=400)
+    
+    if birth_date_str == '0001-01-01':
+        return error_response(description="Birth date not provided.", response=400)
     
     try:
         user = User.query.filter_by(email=email).first() # Try finding user with email

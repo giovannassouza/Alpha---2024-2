@@ -15,14 +15,17 @@
         <input type="email" name="email" required>
         <label for="password">Password:</label>
         <input type="password" name="password" required>
+        <br/>
         <label for="password_check">Confirm Password:</label>
         <input type="password" name="password_check" required>
         <label for="full_name">Full Name:</label>
         <input type="text" name="full_name" required>
+        <br/>
         <label for="birth_date">Birth Date:</label>
         <input type="date" name="birth_date" required>
         <label for="cpf">CPF:</label>
         <input type="text" name="cpf" required>
+        <br/>
         <label for="cliente_tina">Cliente Tina:</label>
         <input type="checkbox" name="cliente_tina" value="1">
         <label for="keep_logged_in">Keep Logged In:</label>
@@ -37,6 +40,7 @@
         <input type="text" name="id_method" required>
         <label for="password">Password:</label>
         <input type="password" name="password" required>
+        <br/>
         <label for="keep_logged_in">Keep Logged In:</label>
         <input type="checkbox" name="keep_logged_in" value="1">
         <button type="submit">Log In</button>
@@ -49,18 +53,22 @@
         <input type="text" name="full_name">
         <label for="email">Email:</label>
         <input type="email" name="email">
+        <br/>
         <label for="cpf">CPF:</label>
         <input type="text" name="cpf">
         <label for="data_nasc">Birth Date:</label>
         <input type="date" name="data_nasc">
+        <br/>
         <label for="cliente_tina">Cliente Tina:</label>
         <input type="checkbox" name="cliente_tina" value="1">
         <label for="old_password">Old Password:</label>
         <input type="password" name="old_password">
+        <br/>
         <label for="new_password">New Password:</label>
         <input type="password" name="new_password">
         <label for="check_new_password">Confirm New Password:</label>
         <input type="password" name="check_new_password">
+        <br/>
         <label for="keep_logged_in">Keep Logged In:</label>
         <input type="checkbox" name="keep_logged_in" value="1">
         <button type="submit">Update Account</button>
@@ -89,7 +97,7 @@
                 try {
                     const response = await fetch(actionUrl, {
                         method: 'POST',
-                        body: formData
+                                                body: formData
                     });
 
                     const result = await response.json();
@@ -140,6 +148,8 @@
                 <p><strong>Name:</strong> ${data.name}</p>
                 <p><strong>Email:</strong> ${data.email}</p>
                 <p><strong>CPF:</strong> ${data.cpf}</p>
+                <p><strong>IS_ADM:</strong> ${data.is_adm}</p>
+                <p><strong>Birth date:</strong> ${data.birth_date}</p>
             `;
         }
 

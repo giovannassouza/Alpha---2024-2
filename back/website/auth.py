@@ -83,13 +83,6 @@ def login():
 def sign_up():
     """
     Register a new user account.
-    
-    This endpoint allows users to register for a new account by providing 
-    the required details such as email, password, and personal information. 
-    It performs input validation and checks for duplicate accounts based on 
-    email and CPF. If the registration is successful, the user is logged in 
-    automatically.
-    
     ---
     tags:
       - Authentication
@@ -153,83 +146,90 @@ def sign_up():
         description: Internal server error. Occurs due to database errors or unexpected server issues.
     """
     def check_credentials(email: str, password: str, check_password: str, birth_date: datetime, cpf: str):
-      if '@' not in email:
-        return error_response(description="Invalid email.", response=400)
-      if password != check_password:
-        return error_response(description="Passwords do not match.", response=400)
-      if birth_date >= datetime.now():
-        return error_response(description="Invalid birth date.", response=400)
-      if not validate_cpf(cpf):
-        return error_response(description="Invalid CPF.", response=400)
-      return successful_response(description="Credentials successfully verified.", response=200)
+        if '@' not in email:
+            return error_response(description="Invalid email.", response=400)
+        if password != check_password:
+            return error_response(description="Passwords do not match.", response=400)
+        if birth_date >= datetime.now():
+            return error_response(description="Invalid birth date.", response=400)
+        if not validate_cpf(cpf):
+            return error_response(description="Invalid CPF.", response=400)
+        return successful_response(description="Credentials successfully verified.", response=200)
     
     if current_user.is_authenticated:
-      return error_response(description="Unauthorized access.", response=401)
+        return error_response(description="Unauthorized access.", response=401)
     
     if request.method == 'GET':
-      return render_template('sign-up.html')
+        return render_template('sign-up.html')
     
     email = request.form.get('email')
     password = request.form.get('password')
     check_password = request.form.get('password_check')
     full_name = request.form.get('full_name')
-    birth_date = datetime.strptime(request.get_json().get('birth_date'), '%Y-%m-%d')
+    birth_date_str = request.form.get('birth_date')
     cpf = request.form.get('cpf')
     cliente_tina = request.form.get('cliente_tina')
     keep_logged_in = request.form.get('keep_logged_in')
+
+    try:
+        birth_date = datetime.strptime(birth_date_str, '%Y-%m-%d')
+    except ValueError:
+        return error_response(description="Invalid birth date format. Use YYYY-MM-DD.", response=400)
     
     try:
-      user = User.query.filter_by(email=email).first() # Try finding user with email
+        user = User.query.filter_by(email=email).first() # Try finding user with email
     except Exception as e:
-      return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+        return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+    
     if user: # If there is a user
-      if user.is_active: # And if it is active
-        return error_response(description="Email already registered.", response=409) # Then, don't allow signup
-      # If there is a user but they aren't active
-      check_credentials = check_credentials(email, password, check_password, birth_date, cpf) # Check credentials
-      if check_credentials.status_code != 200:
-        return check_credentials
-      # Proceed with the signup
-      user.full_name = full_name
-      user.email = email
-      user.cpf = cpf
-      user.data_nasc = birth_date
-      user.cliente_tina = cliente_tina
-      user.set_password(password)
-      if user.email == 'es.grupoalpha2024@gmail.com':
-        user.is_adm = True
-      db.session.commit()
-      login_user(user, remember=keep_logged_in)
-      if current_user.is_authenticated:
-        return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
-      return error_response(description="Signed up but error logging in.", response=500)
+        if user.is_active: # And if it is active
+            return error_response(description="Email already registered.", response=409) # Then, don't allow signup
+        # If there is a user but they aren't active
+        check_credentials = check_credentials(email, password, check_password, birth_date, cpf) # Check credentials
+        if check_credentials.status_code != 200:
+            return check_credentials
+        # Proceed with the signup
+        user.full_name = full_name
+        user.email = email
+        user.cpf = cpf
+        user.data_nasc = birth_date
+        user.cliente_tina = cliente_tina
+        user.set_password(password)
+        if user.email == 'es.grupoalpha2024@gmail.com':
+            user.is_adm = True
+        db.session.commit()
+        login_user(user, remember=keep_logged_in)
+        if current_user.is_authenticated:
+            return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
+        return error_response(description="Signed up but error logging in.", response=500)
     
     # Repeat the same process with cpf
     try:
-      user = User.query.filter_by(cpf=cpf).first() # Try finding user with cpf
+        user = User.query.filter_by(cpf=cpf).first() # Try finding user with cpf
     except Exception as e:
-      return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+        return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
+    
     if user: # If there is a user
-      if user.is_active: # And if it is active
-        return error_response(description="CPF already registered.", response=409) # Then, don't allow signup
-      # If there is a user but they aren't active
-      check_credentials = check_credentials(email, password, check_password, birth_date, cpf) # Check credentials
-      if check_credentials.status_code != 200:
-        return check_credentials
-      # Proceed with the signup
-      user.full_name = full_name
-      user.email = email
-      user.cpf = cpf
-      user.data_nasc = birth_date
-      user.cliente_tina = cliente_tina
-      user.set_password(password)
-      if user.email == 'es.grupoalpha2024@gmail.com':
-        user.is_adm = True
-      db.session.commit()
-      login_user(user, remember=keep_logged_in)
-      if current_user.is_authenticated:
-        return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
-      return error_response(description="Signed up but error logging in.", response=500)
+        if user.is_active: # And if it is active
+            return error_response(description="CPF already registered.", response=409) # Then, don't allow signup
+        # If there is a user but they aren't active
+        check_credentials = check_credentials(email, password, check_password, birth_date, cpf) # Check credentials
+        if check_credentials.status_code != 200:
+            return check_credentials
+        # Proceed with the signup
+        user.full_name = full_name
+        user.email = email
+        user.cpf = cpf
+        user.data_nasc = birth_date
+        user.cliente_tina = cliente_tina
+        user.set_password(password)
+        if user.email == 'es.grupoalpha2024@gmail.com':
+            user.is_adm = True
+        db.session.commit()
+        login_user(user, remember=keep_logged_in)
+        if current_user.is_authenticated:
+            return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
+        return error_response(description="Signed up but error logging in.", response=500)
     
     # If there isn't a user
     user = create_user( # Create one
@@ -244,7 +244,7 @@ def sign_up():
     
     login_user(user, remember=keep_logged_in)
     if current_user.is_authenticated:
-      return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
+        return successful_response(description="Signed up successfully.", data={"user_email": current_user.email})
     return error_response(description="Signed up but error logging in.", response=500)
 
 @auth.route('/logout', methods=['POST', 'GET'])

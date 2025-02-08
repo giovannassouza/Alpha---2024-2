@@ -85,20 +85,11 @@
                 event.preventDefault();
                 
                 const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
                 
-                // Handle checkboxes as booleans
-                Object.keys(data).forEach(key => {
-                    if (data[key] === '1') data[key] = true;
-                });
-
                 try {
                     const response = await fetch(actionUrl, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
+                        body: formData
                     });
 
                     const result = await response.json();

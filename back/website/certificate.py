@@ -44,7 +44,7 @@ def get_certificate():
         user_id = current_user.get_id()
 
         query = db.select(CursosEmProgresso.curso_id).where(
-             (CursosEmProgresso.user_id == user_id) & (CursosEmProgresso.progresso >95))
+            (CursosEmProgresso.user_id == user_id) & (CursosEmProgresso.progresso >95))
         cursosFeitos = db.session.execute(db.select(Curso).where(Curso.id.in_(query))).scalars().all()
 
         user_data = db.session.execute(db.select(User).where(User.id == user_id)).scalar_one()
@@ -65,7 +65,7 @@ def get_certificate():
                     download_urls.append({'curso': curso.nome, 'url': download_url})
         
         if len(download_urls) ==0:
-             return error_response(description="Could not find finished classes", response=404)
+            return error_response(description="Could not find finished classes", response=404)
         else:
             return successful_response(description="Succesfully accessed the certificates url.", data={"download_url": download_urls})
 

@@ -161,6 +161,9 @@ def sign_up():
     if current_user.is_authenticated:
         return error_response(description="Unauthorized access.", response=401)
     
+    if request.method == 'GET':
+        return render_template('sign-up.html')
+    
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
@@ -169,7 +172,7 @@ def sign_up():
     birth_date_str = data.get('birth_date', '0001-01-01')
     cpf = data.get('cpf')
     cliente_tina = data.get('cliente_tina')
-    keep_logged_in = data.get('keep_logged_in', False)
+    keep_logged_in = data.get('keep_logged_in')
     
     try:
         birth_date = datetime.strptime(birth_date_str, '%Y-%m-%d')
@@ -325,7 +328,8 @@ def send_authentication_code_email():
             type: integer
             example: 500
   """
-  email = request.form.get("email")
+  data = request.get_json()
+  email = data.get("email")
   if not email:
     return error_response(description='Email not provided.', response=400)
   
@@ -426,7 +430,8 @@ def authenticate_email_code():
   if user.email_authenticated:
     return error_response(description='Email already authenticated.', response=401)
   
-  provided_auth_code = request.form.get('auth-code')
+  data = request.get_json()
+  provided_auth_code = data.get('auth-code')
   if not provided_auth_code:
     return error_response(description='Authentication code not provided.', response=400)
   

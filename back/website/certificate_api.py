@@ -4,6 +4,36 @@ import textwrap
 import os
 
 def gerar_certificado_pdf(nome_usuario, nome_curso, numero_horas, caminho_certificado='back/website/static/Certificado.pdf'):
+    """
+    Generate a PDF certificate for a completed course.
+    ---
+    tags:
+      - Certificates
+    parameters:
+      - name: nome_usuario
+        in: body
+        type: string
+        required: true
+        description: The name of the user.
+      - name: nome_curso
+        in: body
+        type: string
+        required: true
+        description: The name of the course.
+      - name: numero_horas
+        in: body
+        type: integer
+        required: true
+        description: The number of hours of the course.
+      - name: caminho_certificado
+        in: body
+        type: string
+        required: false
+        description: The path to save the certificate PDF.
+    responses:
+      200:
+        description: Path to the saved certificate PDF.
+    """
     # Garante que o diretório exista
     dir_path = os.path.dirname(caminho_certificado)
     if not os.path.exists(dir_path):

@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, render_template
 from .models import *
 from website.models import *
 from .api_key import *
+from .json_responses import successful_response, error_response
 
 #gerar perguntas
 from langchain_community.chat_models import ChatMaritalk
@@ -68,7 +69,7 @@ class sabia_3(llm_model):
             shuffle(alternativas)
             perguntas.append(Pergunta(pergunta_texto, alternativas, resposta_correta))
         return perguntas
-    
+
 class Pergunta:
     def __init__(self, pergunta, alternativas, resposta_correta):
         self.pergunta = pergunta
@@ -96,6 +97,20 @@ quiz = Blueprint('quiz',__name__)
 
 @quiz.route('/quiz/forms', methods = ['GET','POST'])
 def quizWrite():
+    """
+    Endpoint to create a new quiz question.
+
+    POST:
+        - Request Body: Form data containing:
+            - enunciado (str): The question statement.
+            - alternativa_A (str): Option A.
+            - alternativa_B (str): Option B.
+            - alternativa_C (str): Option C.
+            - alternativa_D (str): Option D.
+            - alternativa_E (str): Option E.
+            - resposta_correta (str): The correct answer.
+        - Response: Renders the 'new_question_form.html' template.
+    """
     if(request.method == 'POST'):
         enunciado = request.form.get('enunciado')
         alternativa_A = request.form.get('alternativa_A')
@@ -111,6 +126,12 @@ def quizWrite():
 
 @quiz.route('/quiz', methods = ['GET'])
 def quizRead():
+    """
+    Endpoint to read quiz questions.
+
+    GET:
+        - Response: HTML content displaying the quiz questions and their options.
+    """
     try:
         questionario = db.session.execute(db.select(Questionario).filter_by(id = 1)).scalar_one()
 
@@ -137,20 +158,34 @@ def quizRead():
 
 @quiz.route('/quiz/generate', methods=['POST'])
 def gerar_perguntas():
+    """
+    Endpoint to generate quiz questions using the sabia-3 model.
+
+    POST:
+        - Request Body: JSON containing:
+            - transcricao (str): The transcription text to generate questions from.
+            - num_perguntas (int): The number of questions to generate.
+        - Response: JSON containing:
+            - response (int): The HTTP status code.
+            - description (str): A message describing the success or error.
+            - data (list): A list of generated questions (if successful).
+            - error (dict): Error details (if any).
+            - timestamp (str): The UTC timestamp of the response.
+    """
     try:
         # Obtém os dados JSON da requisição
         data = request.get_json()
 
         # Valida se os campos obrigatórios estão presentes
         if 'transcricao' not in data or 'num_perguntas' not in data:
-            return jsonify({"erro": "Campos 'transcricao' e 'num_perguntas' são obrigatórios!"}), 400
+            return error_response("Campos 'transcricao' e 'num_perguntas' são obrigatórios!", 400)
 
         transcricao = data['transcricao']
         num_perguntas = data['num_perguntas']
 
         # Certifica-se de que num_perguntas é um número válido
         if not isinstance(num_perguntas, int) or num_perguntas <= 0:
-            return jsonify({"erro": "O campo 'num_perguntas' deve ser um número inteiro positivo!"}), 400
+            return error_response("O campo 'num_perguntas' deve ser um número inteiro positivo!", 400)
 
         # Inicializa o modelo e gera perguntas
         modelo = sabia_3()
@@ -159,7 +194,7 @@ def gerar_perguntas():
         # Converte a saída para JSON
         perguntas_json = [p.to_dict() for p in perguntas]
 
-        return jsonify({"perguntas": perguntas_json})
+        return successful_response("Perguntas geradas com sucesso!", 200, {"perguntas": perguntas_json})
 
     except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+        return error_response(str(e), 500)

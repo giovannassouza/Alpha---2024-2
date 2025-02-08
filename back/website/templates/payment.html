@@ -8,7 +8,6 @@
 <body>
     <h1>Selecione um Plano</h1>
     <form action="{{ url_for('payment.payment_checkout') }}" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <select name="choosen_preference" required>
             <option value="">Selecione um plano</option>
             <option value="0">Acesso por um mês</option>

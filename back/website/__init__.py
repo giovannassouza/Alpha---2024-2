@@ -88,11 +88,12 @@ def add_debug_data():
         return
     # Create users
     user1 = create_user(
-        email="user1@example.com",
-        full_name="User One",
+        email="es.grupoalpha2024@gmail.com",
+        full_name="[ADM USER]",
         cpf="269.851.170-23",
-        password="password1",
-        data_nasc=datetime(1990, 1, 1),
+        password="admin",
+        data_nasc=datetime(1992, 2, 2),
+        is_adm=1,
         cliente_tina=True
     )
     user2 = create_user(

@@ -464,7 +464,7 @@ def validate_signature(user: User):
     """
 
     try:
-        signature = Assinaturas.query.filter_by(user_id= user.id).first()
+        signature = Assinaturas.query.filter_by(user_id=current_user.id).first()
         if not signature:
           return ValueError("No subscription found in database.")
         if signature.fim < datetime.date.now():

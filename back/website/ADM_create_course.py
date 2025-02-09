@@ -12,6 +12,82 @@ cc = Blueprint('course_creation', __name__)
 # Rota para processar o JSON
 @cc.route('/criar_curso', methods=['POST', 'GET'])
 def criar_curso():
+    """
+    Endpoint to create a new course.
+    ---
+    tags:
+      - Courses
+    parameters:
+      - name: titulo
+        in: body
+        type: string
+        required: true
+        description: The title of the course.
+      - name: numero_aulas
+        in: body
+        type: int
+        required: true
+        description: The number of classes in the course.
+      - name: descricao_curso
+        in: body
+        type: string
+        required: true
+        description: The description of the course.
+      - name: imagem_curso
+        in: body
+        type: string
+        required: false
+        description: Base64-encoded image of the course.
+      - name: aulas
+        in: body
+        type: array
+        items:
+          type: object
+          properties:
+            titulo:
+              type: string
+              description: The title of the class.
+            descricao:
+              type: string
+              description: The description of the class.
+            url:
+              type: string
+              description: The URL of the class.
+      - name: questoes
+        in: body
+        type: array
+        items:
+          type: object
+          properties:
+            enunciado:
+              type: string
+              description: The statement of the question.
+            alternativa_a:
+              type: string
+              description: Option A of the question.
+            alternativa_b:
+              type: string
+              description: Option B of the question.
+            alternativa_c:
+              type: string
+              description: Option C of the question.
+            alternativa_d:
+              type: string
+              description: Option D of the question.
+            alternativa_e:
+              type: string
+              description: Option E of the question.
+            resposta_correta:
+              type: string
+              description: The correct answer to the question.
+    responses:
+      200:
+        description: Course created successfully.
+      400:
+        description: Bad request. No JSON data provided.
+      500:
+        description: Internal server error. Could not create course or add class/question.
+    """
     if request.method == 'POST':
         # Parse JSON data
         data = request.get_json()

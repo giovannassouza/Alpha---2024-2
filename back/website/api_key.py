@@ -24,7 +24,8 @@ MAILTRAP_API_KEY = 'd912a7b6f1e17fad33c403cee6f04c5d'
 
 
 # Front-end urls
-front_urls = [
+FRONT_URLS = [
     "http://localhost:3000",
-    "https://grupoalpha.netlify.app/"
+    "https://grupoalpha.netlify.app/",
+    "http://localhost:3000"
 ]

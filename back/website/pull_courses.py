@@ -109,7 +109,7 @@ def get_acervo_questoes():
             data=acervo_list
         )
     except Exception as e:
-        return error_response(description.str(e))
+        return error_response(description=str(e))
 
 @pull.route('/questions/<int:course_id>', methods=['GET'])
 def get_questions(course_id):

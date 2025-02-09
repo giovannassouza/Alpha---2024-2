@@ -3,14 +3,24 @@ import string
 import mailtrap as mt
 from .api_key import MAILTRAP_API_KEY
 from .json_responses import *
-from flask import Blueprint, request, make_response, session
+from flask import Blueprint, Response
 from flask_login import current_user
 from .models import *
 from . import db
 from datetime import datetime
 from .json_responses import successful_response, error_response
+import json
 
 utils = Blueprint('utils', __name__)
+
+def response_to_dict(response: Response) -> dict:
+    """
+    Convert a Flask Response object containing JSON data to a Python dictionary.
+    
+    :param response: Flask Response object
+    :return: Python dictionary
+    """
+    return json.loads(response.get_data(as_text=True))
 
 # Utility function to generate a random authentication code
 def generate_authentication_code(length=6):

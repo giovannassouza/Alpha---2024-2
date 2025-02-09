@@ -218,6 +218,7 @@ def create_user(
         data_nasc = data_nasc,
         data_criacao = data_criacao,
         is_adm = 1 if is_adm else 0,
+        is_active=1,
         cliente_tina = 1 if cliente_tina else 0
     )
     

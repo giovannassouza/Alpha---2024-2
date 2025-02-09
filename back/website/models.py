@@ -22,12 +22,12 @@ class User(db.Model, UserMixin):
     full_name = db.Column(db.String(200))
     data_nasc = db.Column(db.DateTime(timezone=True), nullable=True)
     data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
-    cliente_tina = db.Column(db.Integer, nullable=False)
+    cliente_tina = db.Column(db.Integer, nullable=False, default=0)
     assinante   = db.Column(db.Integer, nullable=True, default=0)
     is_active = db.Column(db.Integer, nullable=False, default=1)
     is_adm = db.Column(db.Integer, nullable=False, default=0)
     email_authenticated = db.Column(db.Integer, default=0)
-    email_authentication_code = db.Column(db.String(7), nullable=True)
+    email_authentication_code = db.Column(db.String(7), nullable=True, default=None)
     
     def is_adm(self):
         return True if self.is_adm == 1 else False

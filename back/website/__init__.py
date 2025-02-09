@@ -94,8 +94,7 @@ def add_debug_data():
         password="admin",
         data_nasc=datetime(1992, 2, 2),
         is_adm=1,
-        cliente_tina=True,
-        is_active=1
+        cliente_tina=True
     )
     user2 = create_user(
         email="user2@example.com",
@@ -103,8 +102,7 @@ def add_debug_data():
         cpf="609.688.090-81",
         password="password2",
         data_nasc=datetime(1992, 2, 2),
-        cliente_tina=True,
-        is_active=1
+        cliente_tina=True
     )
 
     if Curso.query.count() > 0:

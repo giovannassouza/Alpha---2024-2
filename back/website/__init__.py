@@ -34,7 +34,6 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
     
-    from .views import views
     from .auth import auth
     from .payment import payment
     from .quiz import quiz
@@ -53,7 +52,6 @@ def create_app():
     # creates database
     create_database(app)
     
-    app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(payment, url_prefix='/')
     app.register_blueprint(quiz, url_prefix='/')

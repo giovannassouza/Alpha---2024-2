@@ -148,18 +148,18 @@ def sign_up():
         description: Internal server error. Occurs due to database errors or unexpected server issues.
     """
     def check_credentials(email: str, password: str, check_password: str, birth_date: datetime, cpf: str):
-        if '@' not in email:
-            return error_response(description="Invalid email.", response=400)
-        if password != check_password:
-            return error_response(description="Passwords do not match.", response=400)
-        if birth_date >= datetime.now():
-            return error_response(description="Invalid birth date.", response=400)
-        if not validate_cpf(cpf):
-            return error_response(description="Invalid CPF.", response=400)
-        return successful_response(description="Credentials successfully verified.", response=200)
+      if '@' not in email:
+          return error_response(description="Invalid email.", response=400)
+      if password != check_password:
+          return error_response(description="Passwords do not match.", response=400)
+      if birth_date >= datetime.now():
+          return error_response(description="Invalid birth date.", response=400)
+      if not validate_cpf(cpf):
+          return error_response(description="Invalid CPF.", response=400)
+      return successful_response(description="Credentials successfully verified.", response=200)
     
     if current_user.is_authenticated:
-        return error_response(description="Unauthorized access.", response=401)
+      return error_response(description="Unauthorized access.", response=401)
     
     data = request.get_json()
     email = data.get('email')

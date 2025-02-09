@@ -29,6 +29,9 @@ class User(db.Model, UserMixin):
     email_authenticated = db.Column(db.Integer, default=0)
     email_authentication_code = db.Column(db.String(7), nullable=True)
     
+    def is_adm(self):
+        return True if self.is_adm == 1 else False
+    
     def set_password(self, password: str):
         self.password = generate_password_hash(password)
     

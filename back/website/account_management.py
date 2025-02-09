@@ -60,7 +60,7 @@ def call_user():
               'name': current_user.full_name,
               'email': current_user.email,
               'cpf': current_user.cpf,
-              'is_adm': current_user.is_adm,
+              'is_adm': current_user.is_adm(),
               'birth_date': current_user.data_nasc,
               'signature': True if signature['response'] == 200 else False
           }

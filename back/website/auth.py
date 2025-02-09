@@ -78,7 +78,19 @@ def login():
     if not current_user.is_authenticated:
         return error_response(description="Error logging in.", response=500)
       
-    return successful_response(description="Logged in successfully.", data={"user": current_user.email})
+    return successful_response(
+      description="Logged in successfully.", 
+      data={
+        "user": current_user.email,
+        "is_adm": current_user.is_adm(),
+        "full_name": current_user.full_name,
+        "cpf": current_user.cpf,
+        "data_nasc": current_user.data_nasc,
+        "assinante": current_user.assinante,
+        "cliente_tina": current_user.cliente_tina,
+        "email_authenticated": current_user.email_authenticated
+        }
+      )
 
 
 @auth.route('/sign-up', methods=['POST'])
@@ -238,7 +250,7 @@ def sign_up():
         cpf=cpf,
         password=password,
         data_nasc=birth_date,
-        is_adm=True if email == 'es.grupoalpha2024@gmail.com' else False,
+        is_adm=1 if email == 'es.grupoalpha2024@gmail.com' else 0,
         cliente_tina=cliente_tina
     )
     

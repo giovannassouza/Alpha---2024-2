@@ -10,7 +10,7 @@ from website.models import *
 
 certificate = Blueprint('certificate', __name__)
 
-@certificate.route('/class/certificate', methods=['GET'])
+@certificate.route('/class/certificate', methods=['POST'])
 @login_required
 def get_certificate():
     """

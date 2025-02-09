@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, Blueprint
 from flask_sqlalchemy import SQLAlchemy
-from .models import Curso, Questao, Aula
+from .models import Curso, Questao, Aula,AcervoDeQuestoes
 pull = Blueprint('pull', __name__)
 
 @pull.route('/courses', methods=['GET'])
@@ -13,6 +13,22 @@ def get_courses():
 def get_classes(course_id):
     classes = Aula.query.filter_by(curso_id=course_id).all()
     return jsonify([{'id': class_.id, 'title': class_.titulo, 'description': class_.descricao, 'url': class_.url} for class_ in classes])
+
+@pull.route('/acervo-questoes', methods=['GET'])
+def get_acervo_questoes():
+    # Consulta todos os registros da tabela AcervoDeQuestoes
+    acervo_questoes = AcervoDeQuestoes.query.all()
+
+    # Converte os resultados para uma lista de dicionários
+    acervo_list = [{
+        'questionario_id': acervo.questionario_id,
+        'questao_id': acervo.questao_id,
+        'valor_pontos_questao': acervo.valor_pontos_questao
+    } for acervo in acervo_questoes]
+
+    # Retorna os dados em formato JSON
+    return jsonify(acervo_list)
+
 
 @pull.route('/questions/<int:course_id>', methods=['GET'])
 def get_questions(course_id):

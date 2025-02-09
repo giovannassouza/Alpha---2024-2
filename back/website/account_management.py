@@ -15,10 +15,6 @@ account_management = Blueprint('account_management', __name__)
 def call_user():
     """
     Retrieve the current user's account information.
-
-    This endpoint returns the logged-in user's details, including their full name, 
-    email, and CPF. It ensures the user is online before retrieving the data.
-
     ---
     tags:
       - Account Management
@@ -39,6 +35,15 @@ def call_user():
                 cpf:
                   type: string
                   description: CPF (Brazilian ID number) of the user.
+                is_adm:
+                  type: boolean
+                  description: Whether the user is an admin.
+                birth_date:
+                  type: string
+                  description: Birth date of the user.
+                signature:
+                  type: boolean
+                  description: Whether the user has a valid signature.
       401:
         description: User is not logged in.
       500:
@@ -47,6 +52,7 @@ def call_user():
     online_check = user_online_check()
     if online_check.status_code != 200:
         return online_check
+    signature = current_user.check_signature()
     return successful_response(
         description='User data collected successfully.',
         response=200,
@@ -55,7 +61,8 @@ def call_user():
             'email': current_user.email,
             'cpf': current_user.cpf,
             'is_adm': current_user.is_adm,
-            'birth_date': current_user.data_nasc
+            'birth_date': current_user.data_nasc,
+            'signature': True if signature['data']['answer'] == 200 else False
         }
     )
 

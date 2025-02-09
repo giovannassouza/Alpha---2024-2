@@ -149,7 +149,7 @@ def create_user(
     password: str = None,
     data_nasc: datetime = None,
     data_criacao: datetime = datetime.now(),
-    google_linked: bool = False,
+    assinante: bool = False,
     is_adm: bool = False,
     cliente_tina: bool = False
     ):
@@ -210,7 +210,7 @@ def create_user(
         data_criacao = data_criacao,
         is_adm = 1 if is_adm else 0,
         cliente_tina = 1 if cliente_tina else 0,
-        google_linked = google_linked
+        assinante = assinante
     )
     
     if password:

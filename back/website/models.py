@@ -4,6 +4,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from .json_responses import successful_response, error_response
 
+# Models:
+#   User, 
+#   Curso, 
+#   Questionario, 
+#   Ementa, 
+#   Aula, 
+#   AcervoDeQuestoes, 
+#   Questao, 
+#   RespostaAoQuestionario, 
+#   Assinaturas
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

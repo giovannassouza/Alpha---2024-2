@@ -161,9 +161,6 @@ def sign_up():
     if current_user.is_authenticated:
         return error_response(description="Unauthorized access.", response=401)
     
-    if request.method == 'GET':
-        return render_template('sign-up.html')
-    
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')

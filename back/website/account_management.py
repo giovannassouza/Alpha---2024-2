@@ -10,7 +10,7 @@ import random
 account_management = Blueprint('account_management', __name__)
 
 
-@account_management.route('/account/call', methods=["GET"])
+@account_management.route('/account/call', methods=["POST"])
 @login_required
 def call_user():
     """

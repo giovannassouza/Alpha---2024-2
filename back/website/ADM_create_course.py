@@ -1,7 +1,6 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, Blueprint, jsonify
 from sqlalchemy import text
 from flask_login import login_required
-import mysql.connector
 import base64
 from io import BytesIO
 

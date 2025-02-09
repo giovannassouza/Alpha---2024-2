@@ -26,8 +26,9 @@ def create_app():
     }
     
     # CORS setup
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+    app.config['SESSION_COOKIE_SECURE'] = False
     CORS(app, supports_credentials=True, origins=front_urls)
-
     
     # Login manager setup
     login_manager = LoginManager()

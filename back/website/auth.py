@@ -50,15 +50,15 @@ def login():
     """
     if current_user.is_authenticated:
         return error_response(description="Unauthorized access.", response=401)
-
+    
     data = request.get_json()
     id_method = data.get('id_method')
     user_password = data.get('password')
     keep_logged_in = data.get('keep_logged_in', False)
-
+    
     if id_method is None:
         return error_response(description="No identification method provided.", response=400)
-
+    
     try:
         if '@' in id_method:
             user = User.query.filter_by(email=id_method).first()
@@ -66,18 +66,18 @@ def login():
             user = User.query.filter_by(cpf=id_method).first()
     except Exception as e:
         return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
-
+    
     if (not user) or (not user.is_active):
         return error_response(description="User not found. Check your credentials.", response=404)
-
+    
     if not user.check_password(user_password):
         return error_response(description="Incorrect password. Check your credentials.", response=401)
-
+    
     login_user(user, remember=keep_logged_in)
-
+    
     if not current_user.is_authenticated:
         return error_response(description="Error logging in.", response=500)
-
+      
     return successful_response(description="Logged in successfully.", data={"user": current_user.email})
 
 

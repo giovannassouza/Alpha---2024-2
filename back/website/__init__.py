@@ -42,6 +42,7 @@ def create_app():
     from .account_management import account_management
     from .utils import utils
     from .ADM_create_course import cc
+    from .pull_courses import pull
     
     
     # Initialize the database with the app
@@ -60,6 +61,7 @@ def create_app():
     app.register_blueprint(account_management, url_prefix='/')
     app.register_blueprint(utils, url_prefix='/')
     app.register_blueprint(cc, url_prefix='/')
+    app.register_blueprint(pull, url_prefix='/')
     
     from . import models
     @login_manager.user_loader

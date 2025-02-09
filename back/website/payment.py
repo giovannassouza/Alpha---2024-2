@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, Flask, jsonify, render_template, request, session, redirect, url_for
+from flask import Blueprint, render_template, request, session
 from flask_login import login_required, current_user
 from website.auth import validate_signature
 from website.models import *

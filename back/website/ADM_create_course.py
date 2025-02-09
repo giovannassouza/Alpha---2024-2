@@ -1,11 +1,9 @@
-from flask import Flask, flash, render_template, request, redirect, url_for, Blueprint, jsonify
+from flask import render_template, request, Blueprint
 from sqlalchemy import text
-from flask_login import login_required
 import base64
-from io import BytesIO
 
 from .json_responses import error_response, successful_response
-from .models import Curso, Aula, Questao
+from .models import Curso
 from . import db
 
 cc = Blueprint('course_creation', __name__)

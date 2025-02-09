@@ -3,7 +3,7 @@ import string
 import mailtrap as mt
 from .api_key import MAILTRAP_API_KEY
 from .json_responses import *
-from flask import Blueprint, request, make_response, session
+from flask import Blueprint
 from flask_login import current_user
 from .models import *
 from . import db

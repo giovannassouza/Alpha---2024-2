@@ -1,9 +1,9 @@
-from flask import Blueprint, url_for, redirect, session, request, render_template, Response
+from flask import Blueprint, request, render_template
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import db
 from datetime import datetime
-from .json_responses import successful_response, error_response  # Import your standardized response functions
+from .json_responses import successful_response, error_response
 from .utils import validate_cpf, user_online_check, send_email
 import random
 

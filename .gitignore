@@ -17,3 +17,10 @@ back/instance/database
 /back/website/__pycache__
 *.pyc
 back/instance/database
+back/instance/database
+back/website/__pycache__/__init__.cpython-310.pyc
+back/website/__pycache__/api_key.cpython-310.pyc
+back/website/__pycache__/auth.cpython-310.pyc
+back/website/__pycache__/models.cpython-310.pyc
+back/website/__pycache__/payment.cpython-310.pyc
+back/website/__pycache__/payment_api.cpython-310.pyc

@@ -2,6 +2,7 @@ from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from flask import Response
 from .json_responses import successful_response, error_response
 
 # Models:
@@ -29,23 +30,25 @@ class User(db.Model, UserMixin):
     email_authenticated = db.Column(db.Integer, default=0)
     email_authentication_code = db.Column(db.String(7), nullable=True, default=None)
     
-    def is_adm(self):
+    def is_adm(self) -> bool:
         return True if self.is_adm == 1 else False
     
-    def set_password(self, password: str):
+    def set_password(self, password: str) -> str:
         self.password = generate_password_hash(password)
     
-    def check_password(self, password_to_check):
+    def check_password(self, password_to_check) -> bool:
         return check_password_hash(self.password, password_to_check)
     
-    def check_signature(self):
+    def check_signature(self) -> Response:
         signature = Assinaturas.query.filter_by(user_id= self.id).first()
         if not signature:
             return error_response(description="Subscription not found in database.", response=401)
-        if signature.fim < datetime.date.now():
+        if not signature.fim:
+            return successful_response(description="Subscription not found in database.", data={"fim_assinatura": None, "answer": 401})
+        if signature.fim < datetime.now():
             self.assinante = 0
             db.session.commit()
-            return successful_response(description="Subscription expired.", data={"fim_assinatura": signature.fim, "answer": 400})
+            return successful_response(description="Subscription expired.", data={"fim_assinatura": signature.fim, "answer": 401})
         else:
             self.assinante = 1
             db.session.commit()
@@ -108,6 +111,6 @@ class RespostaAoQuestionario(db.Model):
 class Assinaturas(db.Model):
     assinatura_id   = db.Column(db.Integer, primary_key=True, autoincrement="ignore_fk")
     user_id         = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    inicio          = db.Column(db.Date)
-    fim             = db.Column(db.Date)
+    inicio          = db.Column(db.DateTime(timezone=True), nullable=True)
+    fim             = db.Column(db.DateTime(timezone=True), nullable=True)
     TipoAssinatura  = db.Column(db.Integer, nullable = True)

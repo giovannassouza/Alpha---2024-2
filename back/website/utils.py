@@ -3,7 +3,7 @@ import string
 import mailtrap as mt
 from .api_key import MAILTRAP_API_KEY
 from .json_responses import *
-from flask import Blueprint
+from flask import Blueprint, request, make_response, session
 from flask_login import current_user
 from .models import *
 from . import db
@@ -149,7 +149,6 @@ def create_user(
     password: str = None,
     data_nasc: datetime = None,
     data_criacao: datetime = datetime.now(),
-    assinante: bool = False,
     is_adm: bool = False,
     cliente_tina: bool = False
     ):
@@ -209,8 +208,7 @@ def create_user(
         data_nasc = data_nasc,
         data_criacao = data_criacao,
         is_adm = 1 if is_adm else 0,
-        cliente_tina = 1 if cliente_tina else 0,
-        assinante = assinante
+        cliente_tina = 1 if cliente_tina else 0
     )
     
     if password:

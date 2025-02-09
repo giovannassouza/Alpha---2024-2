@@ -1,4 +1,4 @@
-from flask import Blueprint, url_for, redirect, session, request, render_template
+from flask import Blueprint, url_for, redirect, session, request, render_template, Response
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import db
@@ -51,7 +51,7 @@ def call_user():
     online_check = user_online_check()
     if online_check.status_code != 200:
         return online_check
-    signature = current_user.check_signature()
+    signature = current_user.check_signature().get_json()
     return successful_response(
         description='User data collected successfully.',
         response=200,
@@ -61,7 +61,7 @@ def call_user():
             'cpf': current_user.cpf,
             'is_adm': current_user.is_adm,
             'birth_date': current_user.data_nasc,
-            'signature': True if signature['data']['answer'] == 200 else False
+            'signature': signature.get('response') == 200
         }
     )
 

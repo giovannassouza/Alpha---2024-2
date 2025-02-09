@@ -11,7 +11,6 @@ account_management = Blueprint('account_management', __name__)
 
 
 @account_management.route('/account/call', methods=["GET"])
-@login_required
 def call_user():
     """
     Retrieve the current user's account information.

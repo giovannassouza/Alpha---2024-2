@@ -47,7 +47,7 @@ def create_app():
     db.init_app(app)
     
     # Imports classes from models
-    from .models import User, CursosEmProgresso, Curso, Questionario, Questao, Ementa, Aula#, VideoAula, AcervoDeQuestoes, RespostaAoQuestionario
+    from .models import User, CursosEmProgresso, Curso, Questionario, Questao, Aula#, VideoAula, AcervoDeQuestoes, RespostaAoQuestionario
     
     # creates database
     create_database(app)

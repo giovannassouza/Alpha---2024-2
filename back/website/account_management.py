@@ -1,9 +1,9 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, url_for, redirect, session, request, render_template
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import db
 from datetime import datetime
-from .json_responses import successful_response, error_response
+from .json_responses import successful_response, error_response  # Import your standardized response functions
 from .utils import validate_cpf, user_online_check, send_email
 import random
 
@@ -11,6 +11,7 @@ account_management = Blueprint('account_management', __name__)
 
 
 @account_management.route('/account/call', methods=["GET"])
+@login_required
 def call_user():
     """
     Retrieve the current user's account information.
@@ -51,7 +52,7 @@ def call_user():
     online_check = user_online_check()
     if online_check.status_code != 200:
         return online_check
-    signature = current_user.check_signature().get_json()
+    signature = current_user.check_signature()
     return successful_response(
         description='User data collected successfully.',
         response=200,
@@ -59,24 +60,17 @@ def call_user():
             'name': current_user.full_name,
             'email': current_user.email,
             'cpf': current_user.cpf,
-            'is_adm': True if current_user.is_adm == 1 else False,
+            'is_adm': current_user.is_adm,
             'birth_date': current_user.data_nasc,
-            'signature': signature.get('response') == 200
+            'signature': True if signature['data']['answer'] == 200 else False
         }
     )
-
-
 
 @account_management.route('/account/lost', methods=['POST'])
 @login_required
 def lost_account():
     """
     Handle account recovery by generating and sending a new password.
-
-    This endpoint allows users to recover their account by generating a 
-    new temporary password and sending it to their registered email address. 
-    Only authenticated users with a verified email can use this functionality.
-
     ---
     tags:
       - Account Management
@@ -126,12 +120,10 @@ def lost_account():
     return successful_response(description="New password sent to user's email inbox.", response=200)
 
 
-
 @account_management.route("/account/deactivate", methods=['POST'])
 def deactivate_account():
     """
-    Deactivates the account of the currently authenticated user.
-
+    Deactivate the account of the currently authenticated user.
     ---
     tags:
       - Account Management
@@ -225,6 +217,11 @@ def update_account():
         type: boolean
         required: false
         description: Whether the user is a Tina client.
+      - name: keep_logged_in
+        in: formData
+        type: boolean
+        required: false
+        description: Whether to keep the user logged in.
       - name: old_password
         in: formData
         type: string

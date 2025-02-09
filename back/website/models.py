@@ -2,6 +2,7 @@ from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from .json_responses import successful_response, error_response
 
 
 class User(db.Model, UserMixin):
@@ -14,7 +15,6 @@ class User(db.Model, UserMixin):
     data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
     cliente_tina = db.Column(db.Integer, nullable=False)
     assinante   = db.Column(db.Integer, nullable=True, default=0)
-    google_linked = db.Column(db.Integer, nullable=False, default=0)
     is_active = db.Column(db.Integer, nullable=False, default=1)
     is_adm = db.Column(db.Integer, nullable=False, default=0)
     email_authenticated = db.Column(db.Integer, default=0)
@@ -25,6 +25,19 @@ class User(db.Model, UserMixin):
     
     def check_password(self, password_to_check):
         return check_password_hash(self.password, password_to_check)
+    
+    def check_signature(self):
+        signature = Assinaturas.query.filter_by(user_id= self.id).first()
+        if not signature:
+            return error_response(description="Subscription not found in database.", response=401)
+        if signature.fim < datetime.date.now():
+            self.assinante = 0
+            db.session.commit()
+            return successful_response(description="Subscription expired.", data={"fim_assinatura": signature.fim, "answer": 400})
+        else:
+            self.assinante = 1
+            db.session.commit()
+            return successful_response(description="Subscription successfully validated.", data={"fim_assinatura": signature.fim, "answer": 200})
 
 class CursosEmProgresso(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)

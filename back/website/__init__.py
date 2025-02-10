@@ -35,6 +35,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
     
+    
     from .auth import auth
     from .payment import payment
     from .quiz import quiz

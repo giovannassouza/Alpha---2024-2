@@ -50,15 +50,15 @@ def login():
     """
     if current_user.is_authenticated:
         return error_response(description="Unauthorized access.", response=401)
-
+    
     data = request.get_json()
     id_method = data.get('id_method')
     user_password = data.get('password')
     keep_logged_in = data.get('keep_logged_in', False)
-
+    
     if id_method is None:
         return error_response(description="No identification method provided.", response=400)
-
+    
     try:
         if '@' in id_method:
             user = User.query.filter_by(email=id_method).first()
@@ -66,19 +66,31 @@ def login():
             user = User.query.filter_by(cpf=id_method).first()
     except Exception as e:
         return error_response(description="Database error occurred.", response=500, error_details={"error": str(e)})
-
+    
     if (not user) or (not user.is_active):
         return error_response(description="User not found. Check your credentials.", response=404)
-
+    
     if not user.check_password(user_password):
         return error_response(description="Incorrect password. Check your credentials.", response=401)
-
+    
     login_user(user, remember=keep_logged_in)
-
+    
     if not current_user.is_authenticated:
         return error_response(description="Error logging in.", response=500)
-
-    return successful_response(description="Logged in successfully.", data={"user": current_user.email})
+      
+    return successful_response(
+      description="Logged in successfully.", 
+      data={
+        "user": current_user.email,
+        "is_adm": current_user.is_adm(),
+        "full_name": current_user.full_name,
+        "cpf": current_user.cpf,
+        "data_nasc": current_user.data_nasc,
+        "assinante": current_user.assinante,
+        "cliente_tina": current_user.cliente_tina,
+        "email_authenticated": current_user.email_authenticated
+        }
+      )
 
 
 @auth.route('/sign-up', methods=['POST'])
@@ -148,18 +160,18 @@ def sign_up():
         description: Internal server error. Occurs due to database errors or unexpected server issues.
     """
     def check_credentials(email: str, password: str, check_password: str, birth_date: datetime, cpf: str):
-        if '@' not in email:
-            return error_response(description="Invalid email.", response=400)
-        if password != check_password:
-            return error_response(description="Passwords do not match.", response=400)
-        if birth_date >= datetime.now():
-            return error_response(description="Invalid birth date.", response=400)
-        if not validate_cpf(cpf):
-            return error_response(description="Invalid CPF.", response=400)
-        return successful_response(description="Credentials successfully verified.", response=200)
+      if '@' not in email:
+          return error_response(description="Invalid email.", response=400)
+      if password != check_password:
+          return error_response(description="Passwords do not match.", response=400)
+      if birth_date >= datetime.now():
+          return error_response(description="Invalid birth date.", response=400)
+      if not validate_cpf(cpf):
+          return error_response(description="Invalid CPF.", response=400)
+      return successful_response(description="Credentials successfully verified.", response=200)
     
     if current_user.is_authenticated:
-        return error_response(description="Unauthorized access.", response=401)
+      return error_response(description="Unauthorized access.", response=401)
     
     data = request.get_json()
     email = data.get('email')
@@ -238,7 +250,7 @@ def sign_up():
         cpf=cpf,
         password=password,
         data_nasc=birth_date,
-        is_adm=True if email == 'es.grupoalpha2024@gmail.com' else False,
+        is_adm=1 if email == 'es.grupoalpha2024@gmail.com' else 0,
         cliente_tina=cliente_tina
     )
     

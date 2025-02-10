@@ -1,8 +1,6 @@
 from flask import Blueprint, jsonify, request, render_template
-from flask_wtf.csrf import generate_csrf, CSRFProtect
 from .models import *
 from website.models import *
-from datetime import datetime
 from .api_key import *
 from .json_responses import successful_response, error_response
 
@@ -10,8 +8,6 @@ from .json_responses import successful_response, error_response
 from langchain_community.chat_models import ChatMaritalk
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts.chat import ChatPromptTemplate
-import os
-from dotenv import load_dotenv
 from random import shuffle
 from abc import ABC, abstractmethod
 

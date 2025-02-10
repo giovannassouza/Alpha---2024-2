@@ -1,17 +1,16 @@
-from flask import Blueprint, url_for, redirect, session, request, render_template
+from flask import Blueprint, request, render_template
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import *
 from . import db
 from datetime import datetime
-from .json_responses import successful_response, error_response  # Import your standardized response functions
-from .utils import validate_cpf, user_online_check, send_email
+from .json_responses import successful_response, error_response
+from .utils import validate_cpf, user_online_check, send_email, response_to_dict
 import random
 
 account_management = Blueprint('account_management', __name__)
 
 
-@account_management.route('/account/call', methods=["POST"])
-@login_required
+@account_management.route('/account/call', methods=["GET"])
 def call_user():
     """
     Retrieve the current user's account information.
@@ -52,19 +51,22 @@ def call_user():
     online_check = user_online_check()
     if online_check.status_code != 200:
         return online_check
-    signature = current_user.check_signature()
-    return successful_response(
-        description='User data collected successfully.',
-        response=200,
-        data={
-            'name': current_user.full_name,
-            'email': current_user.email,
-            'cpf': current_user.cpf,
-            'is_adm': current_user.is_adm,
-            'birth_date': current_user.data_nasc,
-            'signature': True if signature['data']['answer'] == 200 else False
-        }
-    )
+    signature = response_to_dict(current_user.check_signature())
+    try:
+      return successful_response(
+          description='User data collected successfully.',
+          response=200,
+          data={
+              'name': current_user.full_name,
+              'email': current_user.email,
+              'cpf': current_user.cpf,
+              'is_adm': current_user.is_adm(),
+              'birth_date': current_user.data_nasc,
+              'signature': True if signature['response'] == 200 else False
+          }
+      )
+    except Exception as e:
+        return error_response(description='Internal server error.', response=500, error_details={"error": str(e), 'signature_type':str(type(signature)),'signature': signature})
 
 @account_management.route('/account/lost', methods=['POST'])
 @login_required

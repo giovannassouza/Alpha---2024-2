@@ -2,13 +2,13 @@ from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from flask import Response
 from .json_responses import successful_response, error_response
 
 # Models:
 #   User, 
 #   Curso, 
 #   Questionario, 
-#   Ementa, 
 #   Aula, 
 #   AcervoDeQuestoes, 
 #   Questao, 
@@ -23,27 +23,32 @@ class User(db.Model, UserMixin):
     full_name = db.Column(db.String(200))
     data_nasc = db.Column(db.DateTime(timezone=True), nullable=True)
     data_criacao = db.Column(db.DateTime(timezone=True), default=datetime.now())
-    cliente_tina = db.Column(db.Integer, nullable=False)
+    cliente_tina = db.Column(db.Integer, nullable=False, default=0)
     assinante   = db.Column(db.Integer, nullable=True, default=0)
     is_active = db.Column(db.Integer, nullable=False, default=1)
     is_adm = db.Column(db.Integer, nullable=False, default=0)
     email_authenticated = db.Column(db.Integer, default=0)
-    email_authentication_code = db.Column(db.String(7), nullable=True)
+    email_authentication_code = db.Column(db.String(7), nullable=True, default=None)
     
-    def set_password(self, password: str):
+    def is_adm(self) -> bool:
+        return True if self.is_adm == 1 else False
+    
+    def set_password(self, password: str) -> str:
         self.password = generate_password_hash(password)
     
-    def check_password(self, password_to_check):
+    def check_password(self, password_to_check) -> bool:
         return check_password_hash(self.password, password_to_check)
     
-    def check_signature(self):
+    def check_signature(self) -> Response:
         signature = Assinaturas.query.filter_by(user_id= self.id).first()
         if not signature:
             return error_response(description="Subscription not found in database.", response=401)
-        if signature.fim < datetime.date.now():
+        if not signature.fim:
+            return successful_response(description="Subscription not found in database.", data={"fim_assinatura": None, "answer": 401})
+        if signature.fim < datetime.now():
             self.assinante = 0
             db.session.commit()
-            return successful_response(description="Subscription expired.", data={"fim_assinatura": signature.fim, "answer": 400})
+            return successful_response(description="Subscription expired.", data={"fim_assinatura": signature.fim, "answer": 401})
         else:
             self.assinante = 1
             db.session.commit()
@@ -60,8 +65,8 @@ class Curso(db.Model):
     nome = db.Column(db.String(150), unique=True)
     descricao = db.Column(db.Text)
     nAulas = db.Column(db.Integer)
-    image_file = db.Column(db.LargeBinary)
-    image_file_name = db.Column(db.String(150))
+    image_file = db.Column(db.LargeBinary, default=None, nullable=True)
+    image_file_name = db.Column(db.String(150), default=None, nullable=True)
 
 class Questionario(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -73,11 +78,6 @@ class Questionario(db.Model):
     pontos_min = db.Column(db.Integer)
     pontos_max = db.Column(db.Integer)
     minutos_max = db.Column(db.Integer)
-
-class Ementa(db.Model):
-    aula_id = db.Column(db.Integer, db.ForeignKey("aula.id"), primary_key=True)
-    curso_id = db.Column(db.Integer, db.ForeignKey("curso.id"), primary_key=True)
-
 
 class Aula(db.Model):
     curso_id = db.Column(db.Integer, db.ForeignKey("curso.id"))
@@ -111,6 +111,6 @@ class RespostaAoQuestionario(db.Model):
 class Assinaturas(db.Model):
     assinatura_id   = db.Column(db.Integer, primary_key=True, autoincrement="ignore_fk")
     user_id         = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    inicio          = db.Column(db.Date)
-    fim             = db.Column(db.Date)
+    inicio          = db.Column(db.DateTime(timezone=True), nullable=True)
+    fim             = db.Column(db.DateTime(timezone=True), nullable=True)
     TipoAssinatura  = db.Column(db.Integer, nullable = True)

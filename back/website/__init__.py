@@ -87,23 +87,23 @@ def add_debug_data():
     if User.query.count() > 0:
         return
     # Create users
-    # user1 = create_user(
-    #     email="es.grupoalpha2024@gmail.com",
-    #     full_name="[ADM USER]",
-    #     cpf="269.851.170-23",
-    #     password="admin",
-    #     data_nasc=datetime(1992, 2, 2),
-    #     is_adm=0,
-    #     cliente_tina=True
-    # # )
-    # user2 = create_user(
-    #     email="user2@example.com",
-    #     full_name="User Two",
-    #     cpf="609.688.090-81",
-    #     password="password2",
-    #     data_nasc=datetime(1992, 2, 2),
-    #     cliente_tina=True
-    # )
+    user1 = create_user(
+        email="es.grupoalpha2024@gmail.com",
+        full_name="[ADM USER]",
+        cpf="269.851.170-23",
+        password="admin",
+        data_nasc=datetime(1992, 2, 2),
+        is_adm=0,
+        cliente_tina=True
+    )
+    user2 = create_user(
+        email="user2@example.com",
+        full_name="User Two",
+        cpf="609.688.090-81",
+        password="password2",
+        data_nasc=datetime(1992, 2, 2),
+        cliente_tina=True
+    )
 
     if Curso.query.count() > 0:
         return

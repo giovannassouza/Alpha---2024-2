@@ -7,7 +7,7 @@ from .api_key import *
 from flask_login import LoginManager
 from flask_cors import CORS
 
-app_url = "127.0.0.1:5000"
+app_url = "127.0.0.1:8080"
 db = SQLAlchemy()
 swagger = Swagger()
 
@@ -35,7 +35,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
     
-    
+
     from .auth import auth
     from .payment import payment
     from .quiz import quiz

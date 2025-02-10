@@ -11,4 +11,4 @@ os.environ['AUTHLIB_INSECURE_TRANSPORT'] = 'true'
 
 
 if __name__ == '__main__':
-    app.run(debug=True) # runs app
+    app.run(debug=True, port=8080) # runs app

@@ -26,15 +26,15 @@ def create_app():
     }
     
     # CORS setup
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+    app.config['SESSION_COOKIE_SECURE'] = False
     CORS(app, supports_credentials=True, origins=front_urls)
-
     
     # Login manager setup
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
     
-    from .views import views
     from .auth import auth
     from .payment import payment
     from .quiz import quiz
@@ -49,12 +49,11 @@ def create_app():
     db.init_app(app)
     
     # Imports classes from models
-    from .models import User, CursosEmProgresso, Curso, Questionario, Questao, Ementa, Aula#, VideoAula, AcervoDeQuestoes, RespostaAoQuestionario
+    from .models import User, CursosEmProgresso, Curso, Questionario, Questao, Aula#, VideoAula, AcervoDeQuestoes, RespostaAoQuestionario
     
     # creates database
     create_database(app)
     
-    app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(payment, url_prefix='/')
     app.register_blueprint(quiz, url_prefix='/')

@@ -8,7 +8,10 @@ from .json_responses import successful_response, error_response
 #   User, 
 #   Curso, 
 #   Questionario, 
+<<<<<<< HEAD
 #   Ementa, 
+=======
+>>>>>>> a24c8f6a6d3f45f1ad26f895801c3ba495a51fa8
 #   Aula, 
 #   AcervoDeQuestoes, 
 #   Questao, 
@@ -73,11 +76,6 @@ class Questionario(db.Model):
     pontos_min = db.Column(db.Integer)
     pontos_max = db.Column(db.Integer)
     minutos_max = db.Column(db.Integer)
-
-class Ementa(db.Model):
-    aula_id = db.Column(db.Integer, db.ForeignKey("aula.id"), primary_key=True)
-    curso_id = db.Column(db.Integer, db.ForeignKey("curso.id"), primary_key=True)
-
 
 class Aula(db.Model):
     curso_id = db.Column(db.Integer, db.ForeignKey("curso.id"))

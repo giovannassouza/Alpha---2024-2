@@ -2,7 +2,7 @@ import os
 from flask import Blueprint, send_file, url_for
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-
+from website import app_url
 from website.json_responses import *
 from .certificate_api import gerar_certificado_pdf
 from .models import *
@@ -10,7 +10,7 @@ from website.models import *
 
 certificate = Blueprint('certificate', __name__)
 
-@certificate.route('/class/certificate', methods=['POST'])
+@certificate.route('/courses/certificate', methods=['POST'])
 @login_required
 def get_certificate():
     """
@@ -55,14 +55,15 @@ def get_certificate():
                     file_path = gerar_certificado_pdf(
                         user_data.full_name,
                         curso.nome,
-                        curso.horas_estimado,
+                        curso.nAulas *2,
                         caminho_certificado=f'back/website/static/{filename}'
                     )
                     print(f"Certificado salvo em: {file_path}")
 
                     # Adicionar URL de download à lista
                     download_url = url_for('certificate.download_certificate', filename=filename)
-                    download_urls.append({'curso': curso.nome, 'url': download_url})
+                    download_url = app_url + download_url
+                    download_urls.append({'curso': curso.nome, 'descricao': curso.descricao, 'url': download_url})
         
         if len(download_urls) ==0:
             return error_response(description="Could not find finished classes", response=404)

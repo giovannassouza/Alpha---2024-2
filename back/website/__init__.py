@@ -7,7 +7,7 @@ from .api_key import *
 from flask_login import LoginManager
 from flask_cors import CORS
 
-app_url = "127.0.0.1:8080"
+app_url = "http://127.0.0.1:8080"
 db = SQLAlchemy()
 swagger = Swagger()
 

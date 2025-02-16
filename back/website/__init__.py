@@ -123,7 +123,9 @@ def add_debug_data():
         descricao="Aprenda finanças para restaurantes", 
         nAulas=8
         )
+    curso1.image_file_name = "https://blog.ipog.edu.br/wp-content/uploads/2019/01/3-razões-para-fazer-um-curso-de-marketing-digital-1280x720.jpg"
     db.session.add(curso1)
+    curso2.image_file_name = "https://www.primecursos.com.br/arquivos/uploads/2018/06/administracao-de-financas.jpg"
     db.session.add(curso2)
     db.session.commit()
 

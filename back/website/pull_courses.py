@@ -31,7 +31,7 @@ def get_courses():
         courses = Curso.query.all()
         return successful_response(
             description="Courses retrieved successfully",
-            data=[{'id': course.id, 'name': course.nome, 'description': course.descricao} for course in courses]
+            data=[{'id': course.id, 'name': course.nome, 'description': course.descricao, 'url': course.image_file_name} for course in courses]
         )
     except Exception as e:
         return error_response(description=str(e))

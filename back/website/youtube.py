@@ -1,10 +1,43 @@
-from flask import request, jsonify, render_template, Blueprint
+from flask import request, Blueprint
+from .json_responses import error_response, successful_response
 
 youtube = Blueprint('youtube', __name__)
 
 
-@youtube.route('/videos/get_url', methods=['POST'])
-
+@youtube.route('/videos/get-url', methods=['POST'])
+def get_video():
+    """
+    Endpoint to get the URL of a YouTube video.
+    ---
+    tags:
+      - Videos
+    parameters:
+      - name: url
+        in: body
+        type: string
+        required: true
+        description: URL of the YouTube video.
+    responses:
+      200:
+        description: URL obtained successfully.
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Success message.
+            video_url:
+              type: string
+              description: URL of the YouTube video.
+      400:
+        description: URL not provided.
+    """
+    data = request.get_json()
+    url = data.get('class_id')
+    if not url:
+      return error_response(description='URL not provided', response=400)
+    
+    return successful_response(description='URL obtained successfully', data={'video_url': url})
 
 
 

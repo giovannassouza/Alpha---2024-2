@@ -12,7 +12,7 @@ cc = Blueprint('course_creation', __name__)
 
 
 # Rota para processar o JSON
-@cc.route('/criar_curso', methods=['POST', 'GET'])
+@cc.route('/criar_curso', methods=['POST'])
 def criar_curso():
     """
     Endpoint to create a new course.

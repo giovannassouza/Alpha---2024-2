@@ -45,6 +45,7 @@ def create_app():
     from .ADM_create_course import cc
     from .pull_courses import pull
     from .youtube import youtube
+    from .track_courses import track_courses
     
     # Initialize the database with the app
     db.init_app(app)
@@ -64,6 +65,7 @@ def create_app():
     app.register_blueprint(cc, url_prefix='/')
     app.register_blueprint(pull, url_prefix='/')
     app.register_blueprint(youtube, url_prefix='/')
+    app.register_blueprint(track_courses, url_prefix='/')
     
     from . import models
     @login_manager.user_loader

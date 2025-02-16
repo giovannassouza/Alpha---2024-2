@@ -1,8 +1,6 @@
 import yt_dlp
 import os
-from flask import Flask, request, jsonify, render_template
-
-app = Flask(__name__)
+from flask import request, jsonify, render_template
 
 def download_video(url, output_path):
     """
@@ -27,21 +25,8 @@ def download_video(url, output_path):
         print(f"Erro ao baixar o vídeo: {e}")
         return None
 
-@app.route('/')
-def home():
-    """
-    Home endpoint to check API status.
-    ---
-    tags:
-      - Home
-    responses:
-      200:
-        description: API is working.
-    """
-    return "API OK"
-
 # Rota para baixar o vídeo
-@app.route('/videos/download', methods=['POST'])
+@youtube.route('/videos/download', methods=['POST'])
 def api_download_video():
     """
     Endpoint to download a YouTube video.
@@ -93,7 +78,7 @@ def api_download_video():
         return jsonify({'error': 'Erro ao baixar o vídeo'}), 500
 
 # Rota para mostrar a interface do YouTube no Front-end
-@app.route('/video', methods=['GET'])
+@youtube.route('/video', methods=['GET'])
 def show_video():
     """
     Endpoint to show the video player interface.
@@ -119,5 +104,4 @@ def show_video():
     else:
         return "Vídeo não encontrado", 404
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Catch url from database and send to front-end

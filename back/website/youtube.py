@@ -1,11 +1,9 @@
-import yt_dlp
-import os
 from flask import request, jsonify, render_template, Blueprint
 
-youtube = Blueprint('account_management', __name__)
+youtube = Blueprint('youtube', __name__)
 
 
-
+@youtube.route('/videos/get_url', methods=['POST'])
 
 
 

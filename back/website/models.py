@@ -82,7 +82,8 @@ class Questionario(db.Model):
 class Aula(db.Model):
     curso_id = db.Column(db.Integer, db.ForeignKey("curso.id"))
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    url = db.Column(db.String(150))
+    video_url = db.Column(db.String(150))
+    image_url = db.Column(db.String(150))
     titulo = db.Column(db.String(150))
     descricao = db.Column(db.Text)
 

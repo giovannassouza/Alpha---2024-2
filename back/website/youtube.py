@@ -39,15 +39,6 @@ def get_video():
     
     return successful_response(description='URL obtained successfully', data={'video_url': url})
 
-
-
-
-
-
-
-
-
-
 # def download_video(url, output_path):
 #     """
 #     Faz o download do vídeo usando yt-dlp e salva no diretório especificado.

@@ -10,8 +10,6 @@ from . import db
 
 cc = Blueprint('course_creation', __name__)
 
-
-# Rota para processar o JSON
 @cc.route('/criar_curso', methods=['POST'])
 def criar_curso():
     """
@@ -52,9 +50,12 @@ def criar_curso():
             descricao:
               type: string
               description: The description of the class.
-            url:
+            video_url:
               type: string
-              description: The URL of the class.
+              description: The URL of the class video.
+            image_url:
+              type: string
+              description: The URL of the class image.
       - name: questoes
         in: body
         type: array
@@ -116,53 +117,40 @@ def criar_curso():
             course = Curso(nome=course_name, descricao=course_description, nAulas=nAulas, image_file=course_image_data, image_file_name=course_image_file_name)
             db.session.add(course)
             db.session.flush()  # Ensure the course ID is generated
-        except Exception as e:
-            db.session.rollback()
-            return error_response(description="Internal Server Error. Could not create course", response=500, error_details={"exception": str(e)})
-        try:
-                # Insert aulas
-                aulas = data.get('aulas', [])
-                for aula in aulas:
-                    sentence1 = text('''
-                    INSERT INTO Aula (curso_id, titulo, descricao, url)
-                    VALUES (:curso_id, :titulo, :descricao, :url)
-                    ''')
-                    db.session.execute(sentence1, {
-                        'curso_id': course.id,
-                        'titulo': aula.get('titulo'),
-                        'descricao': aula.get('descricao'),
-                        'url': aula.get('url')
-                    })
-        except Exception as e:
-            db.session.rollback()
-            return error_response(description="Internal Server Error. Could not add class", response=500, error_details={"exception": str(e)})
-        try:
+
+            # Insert aulas
+            aulas = data.get('aulas', [])
+            for aula in aulas:
+                new_aula = Aula(
+                    curso_id=course.id,
+                    titulo=aula.get('titulo'),
+                    descricao=aula.get('descricao'),
+                    video_url=aula.get('video_url'),
+                    image_url=aula.get('image_url')
+                )
+                db.session.add(new_aula)
+
             # Insert questões
             questoes = data.get('questoes', [])
             for questao in questoes:
-                query = '''
-                INSERT INTO Questao (id_curso, enunciado, alternativa_A, alternativa_B, alternativa_C, alternativa_D, alternativa_E, resposta_correta)
-                VALUES (:id_curso, :enunciado, :alternativa_a, :alternativa_b, :alternativa_c, :alternativa_d, :alternativa_e, :resposta_correta)
-                '''
-                params = {
-                    'id_curso': course.id,
-                    'enunciado': questao.get('enunciado'),
-                    'alternativa_a': questao.get('alternativa_a'),
-                    'alternativa_b': questao.get('alternativa_b'),
-                    'alternativa_c': questao.get('alternativa_c'),
-                    'alternativa_d': questao.get('alternativa_d'),
-                    'alternativa_e': questao.get('alternativa_e'),
-                    'resposta_correta': questao.get('resposta_correta')
-                }
-                sentence2 = text(query)
-                db.session.execute(sentence2, params)
+                new_questao = Questao(
+                    id_curso=course.id,
+                    enunciado=questao.get('enunciado'),
+                    alternativa_A=questao.get('alternativa_a'),
+                    alternativa_B=questao.get('alternativa_b'),
+                    alternativa_C=questao.get('alternativa_c'),
+                    alternativa_D=questao.get('alternativa_d'),
+                    alternativa_E=questao.get('alternativa_e'),
+                    resposta_correta=questao.get('resposta_correta')
+                )
+                db.session.add(new_questao)
 
             # Commit changes to the database
             db.session.commit()
-            return successful_response(description="Created course", response=200)
+            return successful_response(description="Course created successfully", response=200)
 
         except Exception as e:
             db.session.rollback()
-            return error_response(description="Internal Server Error. Could not add question", response=500, error_details={"exception": str(e)})
+            return error_response(description="Internal Server Error. Could not create course or add class/question", response=500, error_details={"exception": str(e)})
 
     return render_template("ADM_create_course_template.html")

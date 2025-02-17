@@ -46,6 +46,7 @@ def create_app():
     from .pull_courses import pull
     from .youtube import youtube
     from .track_courses import track_courses
+    from .manage_courses import manage_courses
     
     # Initialize the database with the app
     db.init_app(app)
@@ -66,6 +67,7 @@ def create_app():
     app.register_blueprint(pull, url_prefix='/')
     app.register_blueprint(youtube, url_prefix='/')
     app.register_blueprint(track_courses, url_prefix='/')
+    app.register_blueprint(manage_courses, url_prefix='/')
     
     from . import models
     @login_manager.user_loader
@@ -82,114 +84,121 @@ def create_database(app):
             db.create_all()
             print('Created Database!')
             add_debug_data()
+            def add_debug_data():
+                # Add debug data to the database
+                from .models import User, Curso, Aula, Questao, Questionario, AcervoDeQuestoes, Assinaturas, CursosEmProgresso
+                from .utils import create_user
+                from datetime import datetime, timedelta
 
-def add_debug_data():
-    # Add debug data to the database
-    from .models import User, Curso, Aula, Questao, Questionario, AcervoDeQuestoes, Assinaturas
-    from .utils import create_user
-    from datetime import datetime, timedelta
+                if User.query.count() > 0:
+                    return
+                # Create users
+                user1 = create_user(
+                    email="es.grupoalpha2024@gmail.com",
+                    full_name="[ADM USER]",
+                    cpf="269.851.170-23",
+                    password="admin",
+                    data_nasc=datetime(1992, 2, 2),
+                    is_adm=0,
+                    cliente_tina=True
+                )
+                user2 = create_user(
+                    email="user2@example.com",
+                    full_name="User Two",
+                    cpf="609.688.090-81",
+                    password="password2",
+                    data_nasc=datetime(1992, 2, 2),
+                    cliente_tina=True
+                )
 
-    if User.query.count() > 0:
-        return
-    # Create users
-    user1 = create_user(
-        email="es.grupoalpha2024@gmail.com",
-        full_name="[ADM USER]",
-        cpf="269.851.170-23",
-        password="admin",
-        data_nasc=datetime(1992, 2, 2),
-        is_adm=0,
-        cliente_tina=True
-    )
-    user2 = create_user(
-        email="user2@example.com",
-        full_name="User Two",
-        cpf="609.688.090-81",
-        password="password2",
-        data_nasc=datetime(1992, 2, 2),
-        cliente_tina=True
-    )
+                if Curso.query.count() > 0:
+                    return
+                # Create courses
+                curso1 = Curso(
+                    nome="Curso de Marketing", 
+                    descricao="Aprenda marketing para restaurantes", 
+                    nAulas=10
+                    )
+                curso2 = Curso(
+                    nome="Curso de Finanças", 
+                    descricao="Aprenda finanças para restaurantes", 
+                    nAulas=8
+                    )
+                curso1.image_file_name = "https://blog.ipog.edu.br/wp-content/uploads/2019/01/3-razões-para-fazer-um-curso-de-marketing-digital-1280x720.jpg"
+                db.session.add(curso1)
+                curso2.image_file_name = "https://www.primecursos.com.br/arquivos/uploads/2018/06/administracao-de-financas.jpg"
+                db.session.add(curso2)
+                db.session.commit()
 
-    if Curso.query.count() > 0:
-        return
-    # Create courses
-    curso1 = Curso(
-        nome="Curso de Marketing", 
-        descricao="Aprenda marketing para restaurantes", 
-        nAulas=10
-        )
-    curso2 = Curso(
-        nome="Curso de Finanças", 
-        descricao="Aprenda finanças para restaurantes", 
-        nAulas=8
-        )
-    curso1.image_file_name = "https://blog.ipog.edu.br/wp-content/uploads/2019/01/3-razões-para-fazer-um-curso-de-marketing-digital-1280x720.jpg"
-    db.session.add(curso1)
-    curso2.image_file_name = "https://www.primecursos.com.br/arquivos/uploads/2018/06/administracao-de-financas.jpg"
-    db.session.add(curso2)
-    db.session.commit()
+                if Aula.query.count() > 0:
+                    return
+                # Create classes
+                aula1 = Aula(curso_id=curso1.id, image_url="http://example.com/aula1", video_url="http://example.com/aula1", titulo="Introdução ao Marketing", descricao="Aula introdutória de marketing")
+                aula2 = Aula(curso_id=curso1.id, image_url="http://example.com/aula1", video_url="http://example.com/aula2", titulo="Marketing Digital", descricao="Aula sobre marketing digital")
+                aula3 = Aula(curso_id=curso2.id, image_url="http://example.com/aula1", video_url="http://example.com/aula3", titulo="Introdução às Finanças", descricao="Aula introdutória de finanças")
+                db.session.add(aula1)
+                db.session.add(aula2)
+                db.session.add(aula3)
+                db.session.commit()
 
-    if Aula.query.count() > 0:
-        return
-    # Create classes
-    aula1 = Aula(curso_id=curso1.id, url="http://example.com/aula1", titulo="Introdução ao Marketing", descricao="Aula introdutória de marketing")
-    aula2 = Aula(curso_id=curso1.id, url="http://example.com/aula2", titulo="Marketing Digital", descricao="Aula sobre marketing digital")
-    aula3 = Aula(curso_id=curso2.id, url="http://example.com/aula3", titulo="Introdução às Finanças", descricao="Aula introdutória de finanças")
-    db.session.add(aula1)
-    db.session.add(aula2)
-    db.session.add(aula3)
-    db.session.commit()
+                if Questao.query.count() > 0:
+                    return
+                # Create questions
+                questao1 = Questao(
+                    id_curso=curso1.id, 
+                    enunciado="O que é marketing?", 
+                        alternativa_A="Opção A", 
+                        alternativa_B="Opção B", 
+                        alternativa_C="Opção C", 
+                        alternativa_D="Opção D", 
+                        alternativa_E="Opção E", 
+                    resposta_correta="A")
+                questao2 = Questao(
+                    id_curso=curso2.id,
+                    enunciado="O que é finanças?", 
+                        alternativa_A="Opção A", 
+                        alternativa_B="Opção B", 
+                        alternativa_C="Opção C", 
+                        alternativa_D="Opção D", 
+                        alternativa_E="Opção E", 
+                    resposta_correta="B"
+                    )
+                db.session.add(questao1)
+                db.session.add(questao2)
+                db.session.commit()
 
-    if Questao.query.count() > 0:
-        return
-    # Create questions
-    questao1 = Questao(
-        id_curso=curso1.id, 
-        enunciado="O que é marketing?", 
-            alternativa_A="Opção A", 
-            alternativa_B="Opção B", 
-            alternativa_C="Opção C", 
-            alternativa_D="Opção D", 
-            alternativa_E="Opção E", 
-        resposta_correta="A")
-    questao2 = Questao(
-        id_curso=curso2.id,
-        enunciado="O que é finanças?", 
-            alternativa_A="Opção A", 
-            alternativa_B="Opção B", 
-            alternativa_C="Opção C", 
-            alternativa_D="Opção D", 
-            alternativa_E="Opção E", 
-        resposta_correta="B"
-        )
-    db.session.add(questao1)
-    db.session.add(questao2)
-    db.session.commit()
+                if Questionario.query.count() > 0:
+                    return
+                # Create questionnaires
+                questionario1 = Questionario(q1=questao1.id, q2=questao2.id, pontos_min=5, pontos_max=10, minutos_max=30)
+                db.session.add(questionario1)
+                db.session.commit()
 
-    if Questionario.query.count() > 0:
-        return
-    # Create questionnaires
-    questionario1 = Questionario(q1=questao1.id, q2=questao2.id, pontos_min=5, pontos_max=10, minutos_max=30)
-    db.session.add(questionario1)
-    db.session.commit()
+                if AcervoDeQuestoes.query.count() > 0:
+                    return
+                # Create question archive
+                acervo1 = AcervoDeQuestoes(questionario_id=questionario1.id, questao_id=questao1.id, valor_pontos_questao=5)
+                acervo2 = AcervoDeQuestoes(questionario_id=questionario1.id, questao_id=questao2.id, valor_pontos_questao=5)
+                db.session.add(acervo1)
+                db.session.add(acervo2)
+                db.session.commit()
 
-    if AcervoDeQuestoes.query.count() > 0:
-        return
-    # Create question archive
-    acervo1 = AcervoDeQuestoes(questionario_id=questionario1.id, questao_id=questao1.id, valor_pontos_questao=5)
-    acervo2 = AcervoDeQuestoes(questionario_id=questionario1.id, questao_id=questao2.id, valor_pontos_questao=5)
-    db.session.add(acervo1)
-    db.session.add(acervo2)
-    db.session.commit()
+                if Assinaturas.query.count() > 0:
+                    return
+                # Create subscriptions
+                assinatura1 = Assinaturas(user_id=user1.id, inicio=datetime.now(), fim=datetime.now() + timedelta(days=365), TipoAssinatura=1)
+                assinatura2 = Assinaturas(user_id=user2.id, inicio=datetime.now(), fim=datetime.now() + timedelta(days=365), TipoAssinatura=2)
+                db.session.add(assinatura1)
+                db.session.add(assinatura2)
+                db.session.commit()
 
-    if Assinaturas.query.count() > 0:
-        return
-    # Create subscriptions
-    assinatura1 = Assinaturas(user_id=user1.id, inicio=datetime.now(), fim=datetime.now() + timedelta(days=365), TipoAssinatura=1)
-    assinatura2 = Assinaturas(user_id=user2.id, inicio=datetime.now(), fim=datetime.now() + timedelta(days=365), TipoAssinatura=2)
-    db.session.add(assinatura1)
-    db.session.add(assinatura2)
-    db.session.commit()
+                if CursosEmProgresso.query.count() > 0:
+                    return
+                # Create courses in progress
+                curso_em_progresso1 = CursosEmProgresso(user_id=user1.id, curso_id=curso1.id, progresso=50)
+                curso_em_progresso2 = CursosEmProgresso(user_id=user2.id, curso_id=curso2.id, progresso=100)
+                db.session.add(curso_em_progresso1)
+                db.session.add(curso_em_progresso2)
+                db.session.commit()
 
-    print('Added debug data to the database.')
-
+                print('Added debug data to the database.')

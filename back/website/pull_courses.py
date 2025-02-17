@@ -70,7 +70,7 @@ def get_classes(course_id):
         classes = Aula.query.filter_by(curso_id=course_id).all()
         return successful_response(
             description="Classes retrieved successfully",
-            data=[{'id': class_.id, 'title': class_.titulo, 'description': class_.descricao, 'url': class_.url} for class_ in classes]
+            data=[{'id': class_.id, 'title': class_.titulo, 'description': class_.descricao, 'video_url': class_.video_url, 'image_url': class_.image_url} for class_ in classes]
         )
     except Exception as e:
         return error_response(description=str(e))

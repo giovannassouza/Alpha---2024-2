@@ -1,9 +1,6 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, Blueprint, jsonify
 from sqlalchemy import text
 from flask_login import login_required
-import base64
-from io import BytesIO
-
 from .json_responses import error_response, successful_response
 from .models import Curso, Aula, Questao
 from . import db
@@ -37,7 +34,7 @@ def criar_curso():
         in: body
         type: string
         required: false
-        description: Base64-encoded image of the course.
+        description: URL of the course image.
       - name: aulas
         in: body
         type: array
@@ -96,31 +93,29 @@ def criar_curso():
         data = request.get_json()
 
         if not data:
-            return error_response(description="No JSON data provided.", response=400)
+            return error_response(description="Nenhum dado JSON fornecido.", response=400)
 
         try:
             # Extract course data from JSON
             course_name = data.get('titulo')
             nAulas = data.get('numero_aulas')
             course_description = data.get('descricao_curso')
-            course_image_base64 = data.get('imagem_curso')  # Base64-encoded image
+            course_image_url = data.get('imagem_curso')  # URL of the course image
 
-            # Decode the base64 image (if provided)
-            if course_image_base64:
-                course_image_data = base64.b64decode(course_image_base64)
-                course_image_file_name = f"{course_name}_image.jpg"  # Generate a filename
-            else:
-                course_image_data = None
-                course_image_file_name = None
+            # Validate required fields
+            if not course_name or not nAulas or not course_description:
+                return error_response(description="Campos obrigatórios ausentes: 'titulo', 'numero_aulas', 'descricao_curso'.", response=400)
 
             # Create the course
-            course = Curso(nome=course_name, descricao=course_description, nAulas=nAulas, image_file=course_image_data, image_file_name=course_image_file_name)
+            course = Curso(nome=course_name, descricao=course_description, nAulas=nAulas, image_file_name=course_image_url)
             db.session.add(course)
             db.session.flush()  # Ensure the course ID is generated
 
             # Insert aulas
             aulas = data.get('aulas', [])
             for aula in aulas:
+                if not aula.get('titulo') or not aula.get('descricao') or not aula.get('video_url'):
+                    return error_response(description="Campos obrigatórios ausentes em 'aulas': 'titulo', 'descricao', 'video_url'.", response=400)
                 new_aula = Aula(
                     curso_id=course.id,
                     titulo=aula.get('titulo'),
@@ -133,6 +128,8 @@ def criar_curso():
             # Insert questões
             questoes = data.get('questoes', [])
             for questao in questoes:
+                if not questao.get('enunciado') or not questao.get('alternativa_a') or not questao.get('alternativa_b') or not questao.get('alternativa_c') or not questao.get('alternativa_d') or not questao.get('alternativa_e') or not questao.get('resposta_correta'):
+                    return error_response(description="Campos obrigatórios ausentes em 'questoes': 'enunciado', 'alternativa_a', 'alternativa_b', 'alternativa_c', 'alternativa_d', 'alternativa_e', 'resposta_correta'.", response=400)
                 new_questao = Questao(
                     id_curso=course.id,
                     enunciado=questao.get('enunciado'),
@@ -147,10 +144,10 @@ def criar_curso():
 
             # Commit changes to the database
             db.session.commit()
-            return successful_response(description="Course created successfully", response=200)
+            return successful_response(description="Curso criado com sucesso", response=200)
 
         except Exception as e:
             db.session.rollback()
-            return error_response(description="Internal Server Error. Could not create course or add class/question", response=500, error_details={"exception": str(e)})
+            return error_response(description="Erro interno do servidor. Não foi possível criar o curso ou adicionar aula/questão", response=500, error_details={"exception": str(e)})
 
     return render_template("ADM_create_course_template.html")

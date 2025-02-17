@@ -81,9 +81,6 @@ def create_app():
 def create_database(app):
     if not path.exists('website/' + DB_NAME):
         with app.app_context():
-            db.create_all()
-            print('Created Database!')
-            add_debug_data()
             def add_debug_data():
                 # Add debug data to the database
                 from .models import User, Curso, Aula, Questao, Questionario, AcervoDeQuestoes, Assinaturas, CursosEmProgresso
@@ -115,15 +112,15 @@ def create_database(app):
                     return
                 # Create courses
                 curso1 = Curso(
-                    nome="Curso de Marketing", 
-                    descricao="Aprenda marketing para restaurantes", 
+                    nome="Curso de Marketing",
+                    descricao="Aprenda marketing para restaurantes",
                     nAulas=10
-                    )
+                )
                 curso2 = Curso(
-                    nome="Curso de Finanças", 
-                    descricao="Aprenda finanças para restaurantes", 
+                    nome="Curso de Finanças",
+                    descricao="Aprenda finanças para restaurantes",
                     nAulas=8
-                    )
+                )
                 curso1.image_file_name = "https://blog.ipog.edu.br/wp-content/uploads/2019/01/3-razões-para-fazer-um-curso-de-marketing-digital-1280x720.jpg"
                 db.session.add(curso1)
                 curso2.image_file_name = "https://www.primecursos.com.br/arquivos/uploads/2018/06/administracao-de-financas.jpg"
@@ -134,26 +131,26 @@ def create_database(app):
                     return
                 # Create classes
                 aula1 = Aula(
-                    curso_id=curso1.id, 
-                    image_url="https://alexandrespada.com.br/wp-content/uploads/2023/07/Introducao-ao-Marketing-Um-Guia-para-Iniciantes.jpg", 
-                    video_url="https://www.youtube.com/embed/ixBmTdaQLJ4?si=7kD2zqalYQ20PfKw", 
-                    titulo="Introdução ao Marketing", 
+                    curso_id=curso1.id,
+                    image_url="https://alexandrespada.com.br/wp-content/uploads/2023/07/Introducao-ao-Marketing-Um-Guia-para-Iniciantes.jpg",
+                    video_url="https://www.youtube.com/embed/ixBmTdaQLJ4?si=7kD2zqalYQ20PfKw",
+                    titulo="Aula 1 - Como iniciar o seu negócio",
                     descricao="Aula introdutória de marketing"
-                    )
+                )
                 aula2 = Aula(
-                    curso_id=curso1.id, 
-                    image_url="https://static.dinamize.com.br/dinamizeszmsdg3x/uploads/2024/06/Marketing-digital.png", 
-                    video_url="https://www.youtube.com/embed/ice_xL6x4Qg?si=hdvue4zuirdbMIQX", 
-                    titulo="Marketing Digital", 
+                    curso_id=curso1.id,
+                    image_url="https://static.dinamize.com.br/dinamizeszmsdg3x/uploads/2024/06/Marketing-digital.png",
+                    video_url="https://www.youtube.com/embed/ice_xL6x4Qg?si=hdvue4zuirdbMIQX",
+                    titulo="Aula 2 - Como fazer marketing digital",
                     descricao="Aula sobre marketing digital"
-                    )
+                )
                 aula3 = Aula(
-                    curso_id=curso2.id, 
-                    image_url="https://blbescoladenegocios.com.br/wp-content/uploads/2022/05/BlbEscola_vitrineCurso_Introducao_financas_700x450.png", 
+                    curso_id=curso2.id,
+                    image_url="https://blbescoladenegocios.com.br/wp-content/uploads/2022/05/BlbEscola_vitrineCurso_Introducao_financas_700x450.png",
                     video_url="https://www.youtube.com/embed/JJiPcmkQg8A?si=C0A4a56S2ALXcNcE",
-                    titulo="Introdução às Finanças", 
+                    titulo="Introdução às Finanças",
                     descricao="Aula introdutória de finanças"
-                    )
+                )
                 db.session.add(aula1)
                 db.session.add(aula2)
                 db.session.add(aula3)
@@ -163,24 +160,25 @@ def create_database(app):
                     return
                 # Create questions
                 questao1 = Questao(
-                    id_curso=curso1.id, 
-                    enunciado="O que é marketing?", 
-                        alternativa_A="Opção A", 
-                        alternativa_B="Opção B", 
-                        alternativa_C="Opção C", 
-                        alternativa_D="Opção D", 
-                        alternativa_E="Opção E", 
-                    resposta_correta="A")
+                    id_curso=curso1.id,
+                    enunciado="O que é marketing?",
+                    alternativa_A="Opção A",
+                    alternativa_B="Opção B",
+                    alternativa_C="Opção C",
+                    alternativa_D="Opção D",
+                    alternativa_E="Opção E",
+                    resposta_correta="A"
+                )
                 questao2 = Questao(
                     id_curso=curso2.id,
-                    enunciado="O que é finanças?", 
-                        alternativa_A="Opção A", 
-                        alternativa_B="Opção B", 
-                        alternativa_C="Opção C", 
-                        alternativa_D="Opção D", 
-                        alternativa_E="Opção E", 
+                    enunciado="O que é finanças?",
+                    alternativa_A="Opção A",
+                    alternativa_B="Opção B",
+                    alternativa_C="Opção C",
+                    alternativa_D="Opção D",
+                    alternativa_E="Opção E",
                     resposta_correta="B"
-                    )
+                )
                 db.session.add(questao1)
                 db.session.add(questao2)
                 db.session.commit()
@@ -220,3 +218,7 @@ def create_database(app):
                 db.session.commit()
 
                 print('Added debug data to the database.')
+            
+            db.create_all()
+            print('Created Database!')
+            add_debug_data()

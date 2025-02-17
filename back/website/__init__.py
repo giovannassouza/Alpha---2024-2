@@ -133,9 +133,27 @@ def create_database(app):
                 if Aula.query.count() > 0:
                     return
                 # Create classes
-                aula1 = Aula(curso_id=curso1.id, image_url="http://example.com/aula1", video_url="http://example.com/aula1", titulo="Introdução ao Marketing", descricao="Aula introdutória de marketing")
-                aula2 = Aula(curso_id=curso1.id, image_url="http://example.com/aula1", video_url="http://example.com/aula2", titulo="Marketing Digital", descricao="Aula sobre marketing digital")
-                aula3 = Aula(curso_id=curso2.id, image_url="http://example.com/aula1", video_url="http://example.com/aula3", titulo="Introdução às Finanças", descricao="Aula introdutória de finanças")
+                aula1 = Aula(
+                    curso_id=curso1.id, 
+                    image_url="https://alexandrespada.com.br/wp-content/uploads/2023/07/Introducao-ao-Marketing-Um-Guia-para-Iniciantes.jpg", 
+                    video_url="https://www.youtube.com/embed/ixBmTdaQLJ4?si=7kD2zqalYQ20PfKw", 
+                    titulo="Introdução ao Marketing", 
+                    descricao="Aula introdutória de marketing"
+                    )
+                aula2 = Aula(
+                    curso_id=curso1.id, 
+                    image_url="https://static.dinamize.com.br/dinamizeszmsdg3x/uploads/2024/06/Marketing-digital.png", 
+                    video_url="https://www.youtube.com/embed/ice_xL6x4Qg?si=hdvue4zuirdbMIQX", 
+                    titulo="Marketing Digital", 
+                    descricao="Aula sobre marketing digital"
+                    )
+                aula3 = Aula(
+                    curso_id=curso2.id, 
+                    image_url="https://blbescoladenegocios.com.br/wp-content/uploads/2022/05/BlbEscola_vitrineCurso_Introducao_financas_700x450.png", 
+                    video_url="https://www.youtube.com/embed/JJiPcmkQg8A?si=C0A4a56S2ALXcNcE",
+                    titulo="Introdução às Finanças", 
+                    descricao="Aula introdutória de finanças"
+                    )
                 db.session.add(aula1)
                 db.session.add(aula2)
                 db.session.add(aula3)
